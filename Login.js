@@ -1,87 +1,89 @@
-import React, {Component} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
-import {
+import React, { Component } from 'react'; 
+
+import { 
+  AppRegistry, 
+  StyleSheet, 
+  View 
+} from 'react-native'; 
+
+import { 
   AccessToken,
-  GraphRequest,
-  GraphRequestManager,
-  LoginManager,
-} from 'react-native-fbsdk-next';
+  GraphRequest, 
+  GraphRequestManager, 
+  LoginButton 
+} from 'react-native-fbsdk-next'; 
 
-export default class App extends Component {
-  state = {userInfo: {}};
+var userId = "";
+var accesstoken = "";
+var userName = "";
+var emaill = "";
 
-  logoutWithFacebook = () => {
-    LoginManager.logOut();
-    this.setState({userInfo: {}});
-  };
 
-  getInfoFromToken = token => {
-    const PROFILE_REQUEST_PARAMS = {
-      fields: {
-        string: 'id,name,first_name,last_name',
-      },
-    };
-    const profileRequest = new GraphRequest(
-      '/me',
-      {token, parameters: PROFILE_REQUEST_PARAMS},
-      (error, user) => {
-        if (error) {
-          console.log('login info has error: ' + error);
-        } else {
-          this.setState({userInfo: user});
-          console.log('result:', user);
-        }
-      },
-    );
-    new GraphRequestManager().addRequest(profileRequest).start();
-  };
+export default class Login extends Component { 
+  render() { 
+    return ( 
+      <View style={ styles.container }> 
+        <LoginButton 
+          readPermissions={["public_profile", "user_photos", 
+          "user_posts", "user_events", "user_likes"]} 
+          async onLoginFinished={        
+            async (error, result) => { 
+              if (error) { 
+              } else if (result.isCancelled) { 
+                console.log("login is cancelled."); 
+              } else { 
+                 const data = await AccessToken.getCurrentAccessToken(); 
+                 this._getFeed(); 
+                 accesstoken = data.accessToken.toString();
+                
+                 }
+              } 
+            } 
+          onLogoutFinished={() => console.log("logout.")} 
+        /> 
+      </View> 
+    ); 
+  }  
+  _getFeed () { 
+    const infoRequest = new GraphRequest('/me?fields=id,name,email', null,
+    this._responseInfoCallback); 
+    new GraphRequestManager().addRequest(infoRequest).start(); 
+  } 
+  _responseInfoCallback (error, result) { 
+    if (error) { 
+      console.log('Error fetching data: ', error.toString()); 
+      return; 
+    }
+    userName = result.name.toString();
+    userId = result.id.toString();
+    emaill = result.email.toString();
+    
+    if(userName){
+      fetch('http://192.168.29.166:3000/api/user/signup', {
+      method: 'POST',
+      body: JSON.stringify({
+        "username":{userName},
+        "email":{emaill},
+        "accessToken":{accesstoken},
+        "userid":{userId}
+      }),
+    })
+    .then(response => {
+      console.log(response.data)
+    })
+    .catch(error => {
+      console.error(error);
+    });
+    }
+    }
+  } 
 
-  loginWithFacebook = () => {
-    // Attempt a login using the Facebook login dialog asking for default permissions.
-    LoginManager.logInWithPermissions(['public_profile']).then(
-      login => {
-        if (login.isCancelled) {
-          console.log('Login cancelled');
-        } else {
-          AccessToken.getCurrentAccessToken().then(data => {
-            const accessToken = data.accessToken.toString();
-            this.getInfoFromToken(accessToken);
-            console.log(accessToken);
-          });
-        }
-      },
-      error => {
-        console.log('Login fail with error: ' + error);
-      },
-    );
-  };
+const styles = StyleSheet.create({ 
+  container: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center',  
+  } 
+}); 
 
-  state = {userInfo: {}};
-
-  render() {
-    const isLogin = this.state.userInfo.name;
-    const buttonText = isLogin ? 'Logout With Facebook' : 'Login From Facebook';
-    const onPressButton = isLogin
-      ? this.logoutWithFacebook
-      : this.loginWithFacebook;
-    return (
-      <View style={{flex: 1, margin: 50}}>
-        <TouchableOpacity
-          onPress={onPressButton}
-          style={{
-            backgroundColor: 'blue',
-            padding: 16,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <Text>{buttonText}</Text>
-        </TouchableOpacity>
-        {this.state.userInfo.name && (
-          <Text style={{fontSize: 16, marginVertical: 16}}>
-            Logged in As {this.state.userInfo.name}
-          </Text>
-        )}
-      </View>
-    );
-  }
-}
+AppRegistry.registerComponent('Login', () => Login); 

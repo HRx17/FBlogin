@@ -1,9 +1,5 @@
-
-
-
-
 import React, {useEffect} from "react";
-import { StyleSheet, View, Image } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Login from "./Login";
 import SplashScreen from 'react-native-splash-screen';
 
