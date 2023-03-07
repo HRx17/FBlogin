@@ -1,7 +1,11 @@
 import React, {useEffect} from "react";
-import { StyleSheet, View } from "react-native";
-import Login from "./Login";
 import SplashScreen from 'react-native-splash-screen';
+import {
+  StyleSheet
+} from 'react-native'; 
+
+import { NavigationContainer } from "@react-navigation/native";
+import MainNavigation from './components/MainNavigation';
 
 
 const App = () => {
@@ -9,24 +13,19 @@ const App = () => {
     SplashScreen.hide();
   })
     return (
-    <View style={styles.basic}>
-      <Login/>
-    </View>);
+      <NavigationContainer >
+      <MainNavigation/>
+    </NavigationContainer>);
 };
 
 
 export default App;
 
 const styles = StyleSheet.create({
-  basic: {
-    flex:1,
+  demo: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white'
-  },
-  image: {
-    height: 260,
-    width: 200,
+    justifyContent: 'center'
   }
-
 });
+
