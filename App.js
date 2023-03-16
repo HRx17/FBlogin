@@ -3,6 +3,7 @@ import SplashScreen from 'react-native-splash-screen';
 import {
   StyleSheet
 } from 'react-native'; 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { NavigationContainer } from "@react-navigation/native";
 import MainNavigation from './components/MainNavigation';
@@ -11,7 +12,7 @@ import MainNavigation from './components/MainNavigation';
 const App = () => {
   useEffect(()=> {
     SplashScreen.hide();
-  })
+  });
     return (
       <NavigationContainer >
       <MainNavigation/>

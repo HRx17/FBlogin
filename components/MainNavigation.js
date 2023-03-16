@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NavBar from '../components/NavBar';
 import Login from '../screens/Login';
 import Home from '../screens/Home';
+import HomeScreen from '../screens/HomeScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -19,3 +20,4 @@ class MainNavigation extends React.PureComponent {
 }
 
 export default MainNavigation;
+//

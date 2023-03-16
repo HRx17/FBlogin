@@ -7,13 +7,10 @@ import {
   StyleSheet, 
   View,
   Text,
+  Image,
+  TouchableOpacity,
   Dimensions
 } from 'react-native'; 
-
-import { 
-  AccessToken,
-  LoginButton 
-} from 'react-native-fbsdk-next'; 
 
 var userId = AsyncStorage.getItem('userId');
 var accesstoken = AsyncStorage.getItem('accessToken');
@@ -24,61 +21,20 @@ const dimentions = Dimensions.get('screen');
 
 const Home  = ({navigation}) => {
 
-  const _getFeed = () => { 
-    const infoRequest = new GraphRequest('/me?fields=id,name,email', null,
-    _responseInfoCallback); 
-    new GraphRequestManager().addRequest(infoRequest).start(); 
-  } 
-  const _responseInfoCallback =  (error, result) => { 
-    if (error) { 
-      console.log('Error fetching data: ', error.toString()); 
-      return; 
-    }
-    userName = result.name.toString();
-    userId = result.id.toString();
-    emaill = result.email.toString();
-    AsyncStorage.setItem('userId',result.id.toString());
-
-    var userObj = {
-      "username":userName,
-      "email":emaill,
-      "accessToken":accesstoken,
-      "userid":userId
-    }
-    if(userName){
-    axios.post('http://192.168.29.166:3000/api/user/signup', userObj)
-    .then(response => {
-      console.log(response.data)
-    })
-    .catch(error => {
-      console.error(error);
-    });
-    }
+  openSettings = () => {
+    console.log("settings");
   }
+ 
     return ( 
       <React.Fragment> 
       <View style={ styles.container }>
-      <Text style={styles.input}>Enter Message or Quote here for your Post</Text>
-      <LoginButton 
-          readPermissions={["public_profile", "user_photos", 
-          "user_posts", "user_events", "user_likes"]} 
-          async onLoginFinished={        
-            async (error, result) => { 
-              if (error) { 
-              } else if (result.isCancelled) { 
-                console.log("login is cancelled."); 
-              } else { 
-                 const data = await AccessToken.getCurrentAccessToken(); 
-                 AsyncStorage.setItem('accessToken',data.accessToken.toString());
-                 accesstoken = data.accessToken.toString();
-                
-                 }
-              } 
-              
-            } 
-          onLogoutFinished={() => console.log("logout.")} 
-        /> 
+        <View style={{height: 50, weight: 100, flexDirection: 'row', marginBottom: 760}}>
+          <TouchableOpacity
+          onPress={openSettings}>
+            <Image style={{marginLeft: 10, height: 20, weight: 30, marginRight: 370, marginTop: 10}} source={require("../assets/images/menu.png")}/>
+          </TouchableOpacity>
         </View>
+      </View>
       </React.Fragment> 
     ); 
   }
@@ -91,12 +47,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center',  
   },
-  input: {
-    height: 40,
-    margin: 12,
-    marginBottom: 70,
-    borderWidth: 1,
-    padding: 10,
-  }
 }); 
 AppRegistry.registerComponent('Home',Home);
