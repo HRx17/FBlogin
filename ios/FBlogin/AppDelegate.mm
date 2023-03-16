@@ -1,5 +1,5 @@
 #import "AppDelegate.h"
-
+#import <RCTLinkedinLogin/RCTLinkedinLogin.h>
 #import <FBSDKCoreKit/FBSDKCoreKit-swift.h>
 #import <React/RCTBundleURLProvider.h>
 
@@ -16,6 +16,15 @@
   ];
 
   return handled;
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+  if ([RCTLinkedinLogin shouldHandleUrl:url])
+  {
+    return [RCTLinkedinLogin application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
+  }
+  return YES;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions

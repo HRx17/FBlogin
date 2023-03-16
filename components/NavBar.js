@@ -1,6 +1,5 @@
 import React from 'react'
 import {View,TouchableOpacity,SafeAreaView, Image, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 
 const propTypes = {

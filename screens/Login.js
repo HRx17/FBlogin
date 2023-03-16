@@ -1,8 +1,8 @@
-import React from 'react'; 
+import React,{useState, useCallback} from 'react'; 
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import props from 'deprecated-react-native-prop-types';
 
-import {LinkedInModal} from 'react-native-linkedin';
 
 import { 
   AppRegistry, 
@@ -20,6 +20,7 @@ import {
   GraphRequestManager, 
   LoginButton 
 } from 'react-native-fbsdk-next'; 
+
 import LinkedInModal from 'react-native-linkedin';
 
 var userId = "";
@@ -30,6 +31,10 @@ var emaill = "";
 const dimentions = Dimensions.get('screen');
 
 const Login  = ({navigation}) => {
+
+  const [email,setEmail] = useState();
+  const [payload,setPayload] = useState();
+  var modal;
 
   const _getFeed = () => { 
     const infoRequest = new GraphRequest('/me?fields=id,name,email', null,
@@ -62,6 +67,88 @@ const Login  = ({navigation}) => {
     });
     }
   }
+  const getUser = async data => {
+    const {access_token, authentication_code} = data;
+    if (!authentication_code) {
+     const response = await fetch(
+    `https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams) )`,
+   {
+    method: 'GET',
+    headers: {
+     Authorization: 'Bearer ' + access_token,
+    },
+    },
+   );
+   const apipayload = await response.json();
+   setPayload(apipayload);
+   }
+   else {
+    alert(`authentication_code = ${authentication_code}`);
+   }
+   };
+
+   const getUserEmailId = async data => {
+    const {access_token, authentication_code} = data;
+    if (!authentication_code) {
+     const response = await fetch(
+     'https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))',
+     {
+     method: 'GET',
+     headers: {
+      Authorization: 'Bearer ' + access_token,
+     },
+     },
+     );
+     const emailpayload = await response.json();
+   
+     setEmail(emailpayload.elements[0]['handle~'].emailAddress);
+     handleGetUser();
+     }
+     else {
+      Alert.alert(`authentication_code = ${authentication_code}`);
+     }
+   };
+
+   // handle naviation to home for linkedin
+   const handleGetUser = useCallback(() => {
+    if (payload) {
+     if (props.setFirstName) {
+     props.setFirstName(payload.firstName.localized.en_US);
+    }
+     if (props.setLastName) {
+      props.setLastName(payload.lastName.localized.en_US);
+     }
+     if (props.setProfileImage) { 
+     if (payload.profilePictfsure !== undefined&&
+    payload.profilePicture['displayImage~'] !== null&&
+    payload.profilePicture['displayImage~'].elements[3].identifiers[0].identifier !== null &&
+    payload.profilePicture['displayImage~'].elements[3].identifiers[0].identifier !== undefined)
+     {
+     props.setProfileImage(payload.profilePicture['displayImage~'].elements[3].identifiers[0].identifier,);
+    }
+    else {
+     props.setProfileImage(
+     'https://picsum.photos/200',);
+     }
+    }
+    if (props.setLinkedInId) {
+     props.setLinkedInId(payload.id);
+    }
+    if (email) {
+     if (props.setEmailId) {
+     props.setEmailId(email);
+     props.setIsLoggedIn(true);
+     props.navigation.replace('HomeScreen', {
+      FName: payload.firstName.localized.en_US,
+      LName: payload.lastName.localized.en_US,
+      EmailId: email,
+    ImageUri:payload.profilePicture['displayImage~'].elements[3].identifiers[0].identifier,
+     From: 'LINKEDIN',
+     });
+    }
+    }
+    }
+    }, [email, payload, this.props]);
 
     return ( 
       <React.Fragment>
@@ -90,13 +177,26 @@ const Login  = ({navigation}) => {
           onLogoutFinished={() => console.log("logout.")} 
         /> 
         </View>
-        <LinkedInModal clientID="86uy64s2mcd9e2" clientSecret="I07p3K8s2QYeUBIA" redirectUri="http:/192.168.29.166:3000/auth/linkedin/callback" 
+        <View style={styles.insta}>
+        <LinkedInModal
+        ref={ref=> {
+          modal = ref
+        }}
+        style={{border: '1 solid', fontSize: 20}} 
+        clientID="86uy64s2mcd9e2" 
+        clientSecret="I07p3K8s2QYeUBIA" 
+        redirectUri="https://www.linkedin.com/developers/tools/oauth/redirect" 
         onSuccess= {
           token => {
+            getUser(token);
+            getUserEmailId(token);
             console.log(token);
-          }
-        }
+          }}
+          onError={()=> {
+            console.log('Error!');
+          }}
         />
+        </View>
         <TouchableOpacity style={styles.insta}>
             <Text style={{color: 'white', fontWeight: 'bold',}}> LinkedIn </Text>
       </TouchableOpacity>
