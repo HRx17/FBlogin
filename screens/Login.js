@@ -38,7 +38,7 @@ const Login  = ({navigation}) => {
 
   setIgToken = (data) => {
     console.log('data', data);
-    navigation.navigate('Home');
+    navigation.navigate('HomeScreen');
   }
 
   //linkedin
@@ -117,7 +117,7 @@ const Login  = ({navigation}) => {
     axios.post('http://192.168.29.166:3000/api/user/signup', userObj)
     .then(response => {
       console.log(response.data)
-      navigation.navigate('Home');
+      navigation.navigate('HomeScreen');
     })
     .catch(error => {
       console.error(error);
@@ -234,8 +234,8 @@ const Login  = ({navigation}) => {
                  AsyncStorage.setItem('accessToken',data.accessToken.toString());
                  AsyncStorage.setItem('isLoggedIn',true);
                  accesstoken = data.accessToken.toString();
-                 console.log(AsyncStorage.getItem('accessToken'));
-                 //navigation.navigate('Home');
+                 console.log(accesstoken);
+                 navigation.navigate('HomeScreen');
                  }
               } 
             } 
@@ -270,6 +270,10 @@ const Login  = ({navigation}) => {
         <TouchableOpacity style={[styles.insta,styles.elevation]}>
         <Image source={require('../assets/images/twitter.png')} style={styles.twitter} />
             <Text style={styles.text}> Log in </Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.insta,styles.elevation]}
+             onPress= {() => {navigation.navigate('HomeScreen')}}>
+            <Text style={{color: 'black', fontWeight: 'bold'}}> Skip </Text>
       </TouchableOpacity>
         </View>
       </React.Fragment> 

@@ -28,60 +28,17 @@ const username = "Haet";
 
 const dimentions = Dimensions.get('screen');
 
-const Home  = ({navigation}) => {
+const SeeAll  = ({route}) => {
 
-
-
-  //let tmp = 0;
-  const [postData,setpostData] = useState();
-  const [profileData,setprofileData] = useState();
+  const postData = route.params.item;
+  const profileData = route.params.profile;
   const [modalVisible, setModalVisible] = useState(false);
   logOut = () => {
     navigation.navigate('Login');
     console.log("logout");
   }
-
-  loadPosts = () => {
-      //tmp=1;
-      console.log("entered");
-      const userid = "2102944419904876";
-
-/* make the API call */
-        const info = new GraphRequest(`/${userid}/?fields=picture`,null,_profileResponse);
-        new GraphRequestManager().addRequest(info).start();
-        const infoRequest = new GraphRequest(`/${userid}/posts?fields=message,created_time,id,full_picture,status_type,source`,null,_responsePostCallback);
-        new GraphRequestManager().addRequest(infoRequest).start();
-  }
-
-  const _profileResponse = (error,result) => {
-    if (error) { 
-      console.log('Error fetching Profiledata: ', error.toString()); 
-      return; 
-    }
-    try {
-      setprofileData(result.picture.data);
-      return console.log(result.picture.data);
-    }catch (e) {
-      return e.printStackTrace();
-    }
-  }
-
-  const _responsePostCallback =  (error, result) => {
-    if (error) { 
-      console.log('Error fetching Postdata: ', error.toString());
-      return; 
-    }
-    try {
-      setpostData(result.data);
-      return console.log(result.data);
-    }catch (e) {
-      return e.printStackTrace();
-    }
-  }
+  
  
-  //if(tmp === 0){
-    //loadPosts();
-  //}
     return ( 
       <React.Fragment> 
       <View style={{flex: 1, backgroundColor: '#f7f7f7'}}>
@@ -119,58 +76,18 @@ const Home  = ({navigation}) => {
         </View>
       </Modal>
 
-      <View style={{height: 50, weight: 100, flexDirection: 'row',backgroundColor: '#f7f7f7', marginBottom: 0, marginTop: 170}}>
-        <Image source={require("../assets/images/logo.png")} style={{height: 40, width: 40,borderRadius: 200, marginLeft: 10, marginTop: 10}}/>
+      <View style={{height: 50, weight: 100, flexDirection: 'row',backgroundColor: '#f7f7f7', marginBottom: 0, marginTop: 80}}>
+        <Image source={require("../assets/images/logo.png")} style={{height: 40, width: 40,borderRadius: 200, marginLeft: 10, marginTop: 0}}/>
           <TouchableOpacity
-          style={{marginLeft: 10, height: 32, weight: 30, marginLeft: 300, marginTop: 13}}
+          style={{marginLeft: 10, height: 32, weight: 30, marginLeft: 300, marginTop: 3}}
           onPress={() => setModalVisible(true)}>
             <Icon name="logout" size={30} color="black" />
           </TouchableOpacity>
       </View>
-      <View style={{width: 350, backgroundColor: '#f7f7f7'} }>
-        <Text style={styles.textbold}> Hi {username},</Text>
-        <Text style={styles.textb}> Welcome to your personal post scheduler</Text>
-      </View>
-      <View style={{marginTop: 30, backgroundColor: '#f7f7f7'}}>
-        <ScrollView horizontal={true} >
-        <TouchableOpacity
-          style={styles.icon}
-          onPress={() => {loadPosts();}}>
-            <Icon name="facebook-square" size={25} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity
-          style={styles.icon}
-          onPress={() => {}}>
-            <Icon name="instagram" size={25} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity
-          style={styles.icon}
-          onPress={() => {}}>
-            <Icon name="linkedin-square" size={25} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity
-          style={styles.icon}
-          onPress={() => {}}>
-            <Icon name="twitter" size={25} color="black" />
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-      </View>
-      <View style={{flex: 3,marginBottom: 20,backgroundColor: '#f7f7f7'}}>
-        <ScrollView alwaysBounceVertical={false}>
-      <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
-          <Text style={{flex: 1, width: 50, textAlign: 'left', marginLeft: 30, fontSize: 18,fontWeight: 'bold', color: 'black', fontFamily: 'monospace' }}>
-            Posts
-          </Text>
-          <TouchableOpacity
-          style={{marginRight: 30}}
-          onPress={() => {navigation.navigate("SeeAll", {profile: profileData, item: postData})}}>
-            <Icon name="ellipsis1" size={25} color="black" />
-          </TouchableOpacity>
         </View>
         {postData &&
-        <FlatList data={postData.slice(0,15)}
-        horizontal={true}
+        <FlatList data={postData}
+        contentContainerStyle={{justifyContent: 'center', alignItems: 'center', marginBottom: 20, marginTop: 90}}
         keyExtractor={(item, index) => item.toString()}
         initialNumToRender={10}
         renderItem={({item})=> (
@@ -187,28 +104,12 @@ const Home  = ({navigation}) => {
         >
         </FlatList>
         }
-        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 0}}>
-        <Text style={{flex: 1, width: 50, textAlign: 'left', marginLeft: 30, fontSize: 18,fontWeight: 'bold', color: 'black', fontFamily: 'monospace' }}>
-            Scheduled Posts
-          </Text>
-          <TouchableOpacity
-          style={{marginRight: 30}}
-          onPress={() => {}}>
-            <Icon name="ellipsis1" size={25} color="black" />
-          </TouchableOpacity>
-
         </View>
-        <FlatList>
-          
-        </FlatList>
-        </ScrollView>
-      </View>
-      </View>
       </React.Fragment> 
     ); 
   }
 
-export default Home;
+export default SeeAll;
 
 const styles = StyleSheet.create({ 
   viewStyleForLine: {
@@ -223,8 +124,8 @@ const styles = StyleSheet.create({
     shadowColor: 'grey',
   },
   card: {
-    height: 250,
-    width: 250,
+    height: 350,
+    width: 350,
     margin: 5,
     justifyContent: 'center',
     alignItems: 'center',
@@ -234,7 +135,7 @@ const styles = StyleSheet.create({
     shadowColor: 'black',
   },
   container: { 
-    flex: 2, 
+    flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center',  
     backgroundColor: '#f7f7f7'
@@ -311,7 +212,7 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace'
   }
 }); 
-AppRegistry.registerComponent('Home',Home);
+AppRegistry.registerComponent('SeeAll',SeeAll);
 
 /*
 
