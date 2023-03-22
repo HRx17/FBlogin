@@ -38,8 +38,9 @@ const Login  = ({navigation}) => {
 
   setIgToken = (data) => {
     AsyncStorage.setItem("instatoken", data.access_token);
-    AsyncStorage.setItem('instaUserId',data.user_id);
     AsyncStorage.setItem('isLoggedIn',"true");
+
+    AsyncStorage.setItem('instaUserId',data.user_id.toString());
     navigation.navigate('HomeScreen');
   }
 

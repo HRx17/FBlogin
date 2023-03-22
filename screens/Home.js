@@ -56,6 +56,7 @@ const Home  = ({navigation}) => {
   }, []);
   let tmp = 0;
   const [postData,setpostData] = useState();
+  const [instaPost, setinstaPost] = useState();
   const [profileData,setprofileData] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   logOut = () => {
@@ -67,7 +68,9 @@ const Home  = ({navigation}) => {
   loadInstaPosts = () => {
     axios.get(`https://graph.instagram.com/${instaid}/media?fields=id,media_type,media_url,username,timestamp,caption&access_token=${instatoken}`)
     .then(response=> {
-      return console.log(response);
+      setpostData(null);
+      setinstaPost(response.data.data);
+      return console.log(response.data);
     }).catch(error=> {
       return console.log(error);
     })
@@ -213,6 +216,25 @@ const Home  = ({navigation}) => {
           <Text style={[styles.textb,{marginRight: 120, alignSelf: 'stretch'}]}>{item.message}</Text>
           <Image style={{margin: 3, height: 150, width: 150, borderRadius: 8, alignSelf: 'center'}} source={item.full_picture ? {uri: item.full_picture} : require('../assets/images/Default_Image.png')}/>
           <Text style={{color: 'black', fontFamily: 'monospace', fontSize: 7, marginTop: 5, marginRight: 60}}>{item.created_time}</Text>
+        </View>
+        )
+        }
+        >
+        </FlatList>
+        }
+        {instaPost &&  
+        <FlatList data={instaPost}
+        horizontal={true}
+        keyExtractor={(item, index) => item.toString()}
+        initialNumToRender={10}
+        renderItem={({item})=> (
+        <View style={[styles.card, styles.elevation]}>
+          <View style={{borderColor: 'grey',borderBottomWidth: 1, height: 30, width: '100%', flexDirection: 'row', justifyContent: 'center'}}>
+            
+          </View>
+          <Text style={[styles.textb,{marginRight: 120, alignSelf: 'stretch'}]}>{item.caption}</Text>
+          <Image style={{margin: 3, height: 150, width: 150, borderRadius: 8, alignSelf: 'center'}} source={item.media_url ? {uri: item.media_url} : require('../assets/images/Default_Image.png')}/>
+          <Text style={{color: 'black', fontFamily: 'monospace', fontSize: 7, marginTop: 5, marginRight: 60}}>{item.timestamp}</Text>
         </View>
         )
         }
