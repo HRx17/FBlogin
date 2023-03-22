@@ -11,6 +11,8 @@ import Icon from 'react-native-vector-icons/AntDesign';
 const Tab = createMaterialBottomTabNavigator();
 
 const HomeScreen  = ({navigation}) => {
+
+  
     return (
       <Tab.Navigator initialRouteName='Home'
       activeColor="#075fed"

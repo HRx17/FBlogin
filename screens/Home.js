@@ -1,4 +1,4 @@
-import React, {useState} from 'react'; 
+import React, {useState, useEffect} from 'react'; 
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -7,7 +7,6 @@ import {
   StyleSheet, 
   View,
   Alert,
-  Pressable,
   Modal,
   Text,
   Image,
@@ -19,11 +18,6 @@ import { ScrollView } from 'react-native';
 import { FlatList } from 'react-native';
 import { GraphRequest, GraphRequestManager } from 'react-native-fbsdk-next';
 
-var userId = AsyncStorage.getItem('userId');
-var accesstoken = AsyncStorage.getItem('accessToken');
-console.log(accesstoken);
-const username = "Haet";
-
 
 
 const dimentions = Dimensions.get('screen');
@@ -31,21 +25,58 @@ const dimentions = Dimensions.get('screen');
 const Home  = ({navigation}) => {
 
 
+  let tkn;
+  let username;
+  let userid;
+  let instaid;
+  let instatoken;
 
-  //let tmp = 0;
+  useEffect(()=> {
+    const _retrieveData = async () => {
+      try {
+        const value = await AsyncStorage.getItem('isLoggedIn');
+        tkn = await AsyncStorage.getItem("accessToken");
+        userid = await AsyncStorage.getItem("userId");
+        username = await AsyncStorage.getItem("name");
+        instaid = await AsyncStorage.getItem("instaUserId");
+        instatoken = await AsyncStorage.getItem("instatoken");
+
+        if (value === "true") {
+          console.log(instaid);
+          // let's go 
+        }else {
+          console.log("false");
+        }
+      } catch (error) {
+        console.log(error,"error");
+        // Error retrieving data
+      }
+   };
+    _retrieveData();
+  }, []);
+  let tmp = 0;
   const [postData,setpostData] = useState();
   const [profileData,setprofileData] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   logOut = () => {
+    AsyncStorage.setItem('isLoggedIn', "false");
     navigation.navigate('Login');
     console.log("logout");
   }
 
-  loadPosts = () => {
-      //tmp=1;
-      console.log("entered");
-      const userid = "2102944419904876";
+  loadInstaPosts = () => {
+    axios.get(`https://graph.instagram.com/${instaid}/media?fields=id,media_type,media_url,username,timestamp,caption&access_token=${instatoken}`)
+    .then(response=> {
+      return console.log(response);
+    }).catch(error=> {
+      return console.log(error);
+    })
+  }
 
+  loadPosts = () => {
+      tmp=1;
+      console.log("entered");
+//2102944419904876
 /* make the API call */
         const info = new GraphRequest(`/${userid}/?fields=picture`,null,_profileResponse);
         new GraphRequestManager().addRequest(info).start();
@@ -79,10 +110,11 @@ const Home  = ({navigation}) => {
     }
   }
  
-  //if(tmp === 0){
-    //loadPosts();
-  //}
-    return ( 
+  if(tmp === 0){
+    console.log("loaded");
+    //return loadPosts();
+  }
+    return (
       <React.Fragment> 
       <View style={{flex: 1, backgroundColor: '#f7f7f7'}}>
       <View style={ styles.container }>
@@ -140,7 +172,7 @@ const Home  = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
           style={styles.icon}
-          onPress={() => {}}>
+          onPress={() => {loadInstaPosts();}}>
             <Icon name="instagram" size={25} color="black" />
           </TouchableOpacity>
           <TouchableOpacity

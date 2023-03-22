@@ -81,7 +81,7 @@ const SeeAll  = ({route}) => {
           <TouchableOpacity
           style={{marginLeft: 10, height: 32, weight: 30, marginLeft: 300, marginTop: 3}}
           onPress={() => setModalVisible(true)}>
-            <Icon name="logout" size={30} color="black" />
+            <Icon name="setting" size={30} color="black" />
           </TouchableOpacity>
       </View>
         </View>

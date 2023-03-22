@@ -37,7 +37,9 @@ const dimentions = Dimensions.get('screen');
 const Login  = ({navigation}) => {
 
   setIgToken = (data) => {
-    console.log('data', data);
+    AsyncStorage.setItem("instatoken", data.access_token);
+    AsyncStorage.setItem('instaUserId',data.user_id);
+    AsyncStorage.setItem('isLoggedIn',"true");
     navigation.navigate('HomeScreen');
   }
 
@@ -65,20 +67,19 @@ const Login  = ({navigation}) => {
   );
  }
 
-
-  const check = AsyncStorage.getItem('isLoggedIn');
-  const tkn = AsyncStorage.getItem("accessToken");
+  
+  let tkn;
   const [email,setEmail] = useState();
   const [payload,setPayload] = useState();
 
-  console.log(tkn);
 
   useEffect(()=> {
     const _retrieveData = async () => {
       try {
         const value = await AsyncStorage.getItem('isLoggedIn');
-        if (value === true) {
-          navigation.navigate('Home');
+        tkn = await AsyncStorage.getItem("accessToken");
+        if (value === "true") {
+          navigation.navigate('HomeScreen');
           console.log("done")
           // let's go 
         }else {
@@ -105,7 +106,8 @@ const Login  = ({navigation}) => {
     userName = result.name.toString();
     userId = result.id.toString();
     emaill = result.email.toString();
-    AsyncStorage.setItem('userId',result.id.toString());
+    AsyncStorage.setItem('userId',userId);
+    AsyncStorage.setItem('name',userName);
 
     var userObj = {
       "username":userName,
@@ -113,11 +115,12 @@ const Login  = ({navigation}) => {
       "accessToken":accesstoken,
       "userid":userId
     }
-    if(userName){
+    if(userObj != null){
+    console.log(userName);
     axios.post('http://192.168.29.166:3000/api/user/signup', userObj)
     .then(response => {
       console.log(response.data)
-      navigation.navigate('HomeScreen');
+      navigation.navigate('HomeScreen',{userid: userId, access: accesstoken});
     })
     .catch(error => {
       console.error(error);
@@ -232,7 +235,7 @@ const Login  = ({navigation}) => {
                  const data = await AccessToken.getCurrentAccessToken(); 
                  _getFeed(); 
                  AsyncStorage.setItem('accessToken',data.accessToken.toString());
-                 AsyncStorage.setItem('isLoggedIn',true);
+                 AsyncStorage.setItem('isLoggedIn',"true");
                  accesstoken = data.accessToken.toString();
                  console.log(accesstoken);
                  navigation.navigate('HomeScreen');
