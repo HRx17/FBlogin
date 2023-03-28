@@ -15,12 +15,6 @@ import {
   View,
 } from 'react-native';
 
-import {
-  AccessToken,
-  GraphRequest,
-  GraphRequestManager,
-  LoginButton,
-} from 'react-native-fbsdk-next';
 import {TextInput} from 'react-native-paper';
 
 var userId = '';
@@ -29,11 +23,11 @@ var userName = '';
 var emaill = '';
 var id = '';
 
-const dimentions = Dimensions.get('screen');
-
-const Login = ({navigation}) => {
+const Signup = ({navigation}) => {
+  const [name, onChangeName] = useState('');
   const [email, onChangeText] = useState('');
   const [password, onChangePass] = useState('');
+  const [password2, onChangePass2] = useState('');
   useEffect(() => {
     const _retrieveData = async () => {
       try {
@@ -56,9 +50,16 @@ const Login = ({navigation}) => {
   }, []);
 
   // signin api call method
-  signin = () => {
-    if (email === '' || password === '') {
+  register = () => {
+    if (email === '' || password === '' || password2 === '' || name === '') {
       let toast = Toast.show('Please enter all details', {
+        duration: Toast.durations.LONG,
+      });
+      setTimeout(function hideToast() {
+        Toast.hide(toast);
+      }, 2000);
+    } else if (password != password2) {
+      let toast = Toast.show('Password Dont match', {
         duration: Toast.durations.LONG,
       });
       setTimeout(function hideToast() {
@@ -66,13 +67,14 @@ const Login = ({navigation}) => {
       }, 2000);
     } else {
       var userObj = {
+        username: name,
         email: email,
         password: password,
       };
+      console.log(userObj);
       if (userObj != null) {
-        console.log(userName);
         axios
-          .post('http://192.168.0.195:3000/api/user/login', userObj)
+          .post('http://192.168.0.195:3000/api/user/signup', userObj)
           .then(response => {
             if (response.data.message) {
               let toast = Toast.show(response.data.message, {
@@ -82,9 +84,9 @@ const Login = ({navigation}) => {
                 Toast.hide(toast);
               }, 2000);
             } else {
-              console.log(response.data.id);
-              AsyncStorage.setItem('Id', response.data.id);
-              AsyncStorage.setItem('isLoggedIn', 'true');
+              console.log(response.data._id);
+              AsyncStorage.setItem('Id', response.data._id);
+              //AsyncStorage.setItem('isLoggedIn', 'true');
               navigation.navigate('Connect');
             }
           })
@@ -92,50 +94,6 @@ const Login = ({navigation}) => {
             console.error(error);
           });
       }
-    }
-  };
-
-  //signin with facebook api call
-  const _getFeed = () => {
-    const infoRequest = new GraphRequest(
-      '/me?fields=id,name,email',
-      null,
-      _responseInfoCallback,
-    );
-    new GraphRequestManager().addRequest(infoRequest).start();
-  };
-  const _responseInfoCallback = (error, result) => {
-    if (error) {
-      console.log('Error fetching data: ', error.toString());
-      return;
-    }
-    userName = result.name.toString();
-    userId = result.id.toString();
-    emaill = result.email.toString();
-    AsyncStorage.setItem('userId', userId);
-    AsyncStorage.setItem('name', userName);
-
-    var userObj = {
-      username: userName,
-      email: emaill,
-      accessToken: accesstoken,
-      userid: userId,
-    };
-    if (userObj != null) {
-      console.log(userName);
-      axios
-        .post('http://192.168.29.166:3000/api/user/signup', userObj)
-        .then(response => {
-          console.log(response.data);
-          AsyncStorage.setItem('Id', response.data._id);
-          navigation.navigate('HomeScreen', {
-            userid: userId,
-            access: accesstoken,
-          });
-        })
-        .catch(error => {
-          console.error(error);
-        });
     }
   };
 
@@ -150,18 +108,32 @@ const Login = ({navigation}) => {
         />
         <View style={{flex: 1, backgroundColor: 'white'}}>
           <View style={{marginLeft: 24, marginTop: 64}}>
-            <Text style={styles.textBold}>Sign in</Text>
+            <Text style={styles.textBold}>Sign Up</Text>
             <Text
               style={{
                 color: 'black',
                 fontFamily: 'Open Sans',
-                fontSize: 20,
+                fontSize: 16,
                 marginLeft: 3,
               }}>
-              Good to see you again
+              Create your Post Schedula profile now
             </Text>
           </View>
           <View style={styles.container}>
+            <TextInput
+              style={{
+                height: 40,
+                backgroundColor: 'white',
+                width: '92%',
+                margin: 8,
+                padding: 8,
+              }}
+              underlineColorAndroid="black"
+              textContentType="name"
+              placeholder="Enter Name"
+              onChangeText={onChangeName}
+              value={name}
+            />
             <TextInput
               style={{
                 height: 40,
@@ -191,92 +163,55 @@ const Login = ({navigation}) => {
               onChangeText={onChangePass}
               value={password}
             />
-            <TouchableOpacity>
-              <View>
+            <TextInput
+              style={{
+                height: 40,
+                backgroundColor: 'white',
+                width: '92%',
+                margin: 8,
+                color: 'black',
+                padding: 8,
+              }}
+              underlineColorAndroid="black"
+              textContentType="password"
+              placeholder="Confirm Password"
+              onChangeText={onChangePass2}
+              value={password2}
+            />
+            <View style={styles.buttons}>
+              <TouchableOpacity onPress={() => register()}>
+                <View style={styles.insta}>
+                  <Text style={styles.text}>Sign Up</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={{flexDirection: 'row'}}>
                 <Text
                   style={{
                     color: 'black',
-                    marginRight: '58%',
                     marginTop: 8,
                     fontFamily: 'sans-serif-medium',
                   }}>
-                  Forgot password?
+                  {' '}
+                  Already have an account ?
                 </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('Login');
+                  }}>
+                  <View>
+                    <Text
+                      style={{
+                        color: '#1778f2',
+                        fontWeight: 'bold',
+                        marginTop: 8,
+                        marginLeft: 5,
+                        fontFamily: 'sans-serif-medium',
+                      }}>
+                      Sign In
+                    </Text>
+                  </View>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
-            <View style={styles.buttons}>
-              <TouchableOpacity onPress={() => signin()}>
-                <View style={styles.insta}>
-                  <Text style={styles.text}>Sign in</Text>
-                </View>
-              </TouchableOpacity>
-              <View
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: '#1778f2',
-                  width: '92%',
-                  height: 48,
-                  margin: 16,
-                  borderRadius: 27,
-                }}>
-                <LoginButton
-                  style={{
-                    height: 32,
-                    width: 350,
-                    marginLeft: '2%',
-                    marginRight: '2%',
-                    borderRadius: 20,
-                    margin: 8,
-                  }}
-                  readPermissions={[
-                    'public_profile',
-                    'user_photos',
-                    'user_posts',
-                    'user_events',
-                    'user_likes',
-                  ]}
-                  autoLoad={true}
-                  async
-                  onLoginFinished={async (error, result) => {
-                    if (error) {
-                    } else if (result.isCancelled) {
-                      console.log('login is cancelled.');
-                    } else {
-                      const data = await AccessToken.getCurrentAccessToken();
-                      _getFeed();
-                      AsyncStorage.setItem(
-                        'accessToken',
-                        data.accessToken.toString(),
-                      );
-                      AsyncStorage.setItem('isLoggedIn', 'true');
-                      accesstoken = data.accessToken.toString();
-                      console.log(accesstoken);
-                      navigation.navigate('HomeScreen');
-                    }
-                  }}
-                  onLogoutFinished={() => console.log('logout.')}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('Signup');
-                }}>
-                <View style={styles.insta}>
-                  <Text
-                    style={{
-                      color: '#1778f2',
-                      fontWeight: '',
-                      marginLeft: '29%',
-                      marginRight: '29%',
-                      fontSize: 18,
-                      fontFamily: 'OpenSans',
-                      textAlign: 'center',
-                    }}>
-                    Sign Up with Email
-                  </Text>
-                </View>
-              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -285,7 +220,7 @@ const Login = ({navigation}) => {
   );
 };
 
-export default Login;
+export default Signup;
 
 const styles = StyleSheet.create({
   container: {
@@ -330,9 +265,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     color: 'black',
-    fontSize: 56,
+    fontSize: 46,
     fontFamily: 'Open Sans Bold',
     marginTop: 30,
   },
 });
-AppRegistry.registerComponent('Login', Login);
+AppRegistry.registerComponent('Signup', Signup);
