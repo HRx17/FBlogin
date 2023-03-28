@@ -85,7 +85,7 @@ const Signup = ({navigation}) => {
               }, 2000);
             } else {
               console.log(response.data._id);
-              AsyncStorage.setItem('Id', response.data._id);
+              AsyncStorage.setItem('Id', response.data._id.toString());
               //AsyncStorage.setItem('isLoggedIn', 'true');
               navigation.navigate('Connect');
             }

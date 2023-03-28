@@ -27,7 +27,6 @@ var userId = '';
 var accesstoken = '';
 var userName = '';
 var emaill = '';
-var id = '';
 
 const dimentions = Dimensions.get('screen');
 const ip = '192.168.0.195';
@@ -79,14 +78,15 @@ const Connect = ({navigation}) => {
   };
 
   let tkn;
-  const [email, setEmail] = useState();
-  const [payload, setPayload] = useState();
+  const [email, setEmail] = useState('');
+  const [payload, setPayload] = useState('');
+  const [id, setId] = useState('');
 
   useEffect(() => {
     const _retrieveData = async () => {
       try {
         const value = await AsyncStorage.getItem('isLoggedIn');
-        id = await AsyncStorage.getItem('Id');
+        setId(await AsyncStorage.getItem('Id'));
         tkn = await AsyncStorage.getItem('accessToken');
       } catch (error) {
         console.log(error, 'error');
@@ -109,11 +109,7 @@ const Connect = ({navigation}) => {
       console.log('Error fetching data: ', error.toString());
       return;
     }
-    userName = result.name.toString();
     userId = result.id.toString();
-    emaill = result.email.toString();
-    AsyncStorage.setItem('userId', userId);
-    AsyncStorage.setItem('name', userName);
     AsyncStorage.setItem('isLoggedIn', 'true');
     axios
       .post(`http://${ip}:3000/api/user/connect`, {
@@ -269,13 +265,13 @@ const Connect = ({navigation}) => {
                   const data = await AccessToken.getCurrentAccessToken();
                   _getFeed();
                   AsyncStorage.setItem(
-                    'accessToken',
+                    'fbaccessToken',
                     data.accessToken.toString(),
                   );
                   AsyncStorage.setItem('isLoggedIn', 'true');
                   accesstoken = data.accessToken.toString();
                   console.log(accesstoken);
-                  navigation.navigate('HomeScreen');
+                  //navigation.navigate('HomeScreen');
                 }
               }}
               onLogoutFinished={() => console.log('logout.')}

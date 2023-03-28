@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Carousel from 'react-native-snap-carousel';
 
 import {
   AppRegistry,
@@ -22,28 +23,35 @@ import {GraphRequest, GraphRequestManager} from 'react-native-fbsdk-next';
 const dimentions = Dimensions.get('screen');
 
 const Home = ({navigation}) => {
-  let tkn;
-  let username;
-  let userid;
-  let instaid;
-  let instatoken;
+  const [user, setUser] = useState('');
+  const [id, setId] = useState('');
 
   useEffect(() => {
     const _retrieveData = async () => {
       try {
-        const value = await AsyncStorage.getItem('isLoggedIn');
-        tkn = await AsyncStorage.getItem('accessToken');
-        userid = await AsyncStorage.getItem('userId');
-        username = await AsyncStorage.getItem('name');
-        instaid = await AsyncStorage.getItem('instaUserId');
-        instatoken = await AsyncStorage.getItem('instatoken');
+        var insta = await AsyncStorage.getItem('instatoken');
+        var fb = await AsyncStorage.getItem('fbaccessToken');
 
-        if (value === 'true') {
-          console.log(instaid);
-          // let's go
-        } else {
-          console.log('false');
-        }
+        setId(await AsyncStorage.getItem('Id'));
+        console.log(id);
+        axios
+          .get(
+            `http://192.168.0.195:3000/api/user/${await AsyncStorage.getItem(
+              'Id',
+            )}`,
+          )
+          .then(response => {
+            console.log(response.data.users);
+            setUser(response.data.users);
+            if (insta) {
+              loadInstaPosts();
+            } else if (fb) {
+              loadPosts();
+            }
+          })
+          .catch(error => {
+            console.log(error);
+          });
       } catch (error) {
         console.log(error, 'error');
         // Error retrieving data
@@ -51,29 +59,56 @@ const Home = ({navigation}) => {
     };
     _retrieveData();
   }, []);
-  let tmp = 0;
+
+  const [posts, setPosts] = useState();
   const [postData, setpostData] = useState();
   const [instaPost, setinstaPost] = useState();
   const [profileData, setprofileData] = useState();
   const [modalVisible, setModalVisible] = useState(false);
+
+  //Logout method
   logOut = () => {
     AsyncStorage.setItem('isLoggedIn', 'false');
     navigation.navigate('Login');
     console.log('logout');
   };
 
+  //renders Post content
+  _renderPost = ({item, index}) => {
+    return (
+      <View style={{margin: 10}}>
+        <Image
+          style={{
+            margin: 3,
+            height: 150,
+            width: 150,
+            borderRadius: 8,
+            alignSelf: 'center',
+          }}
+          source={
+            item.full_picture
+              ? {uri: item.full_picture}
+              : require('../assets/images/Default_Image.png')
+          }
+        />
+      </View>
+    );
+  };
+
+  //Loads Instagram Posts
   loadInstaPosts = () => {
     axios
       .get(
-        `https://graph.instagram.com/${instaid}/media?fields=id,media_type,media_url,username,timestamp,caption&access_token=${instatoken}`,
+        `https://graph.instagram.com/${user.insta_userid}/media?fields=id,media_type,media_url,username,timestamp,caption&access_token=${user.insta_accessToken}`,
       )
       .then(response => {
         setpostData(null);
         setinstaPost(response.data.data);
+        setPosts(response.data.data);
         return console.log(response.data);
       })
       .catch(error => {
-        return console.log(error);
+        return console.log(error, 'here?');
       });
   };
 
@@ -82,31 +117,12 @@ const Home = ({navigation}) => {
     console.log('entered');
     //2102944419904876
     /* make the API call */
-    const info = new GraphRequest(
-      `/${userid}/?fields=picture`,
-      null,
-      _profileResponse,
-    );
-    new GraphRequestManager().addRequest(info).start();
     const infoRequest = new GraphRequest(
-      `/${userid}/posts?fields=message,created_time,id,full_picture,status_type,source`,
+      `/${user.fb_userid}/posts?fields=message,created_time,id,full_picture,status_type,source`,
       null,
       _responsePostCallback,
     );
     new GraphRequestManager().addRequest(infoRequest).start();
-  };
-
-  const _profileResponse = (error, result) => {
-    if (error) {
-      console.log('Error fetching Profiledata: ', error.toString());
-      return;
-    }
-    try {
-      setprofileData(result.picture.data);
-      return console.log(result.picture.data);
-    } catch (e) {
-      return e.printStackTrace();
-    }
   };
 
   const _responsePostCallback = (error, result) => {
@@ -116,102 +132,88 @@ const Home = ({navigation}) => {
     }
     try {
       setpostData(result.data);
-      return console.log(result.data);
+      setPosts(result.data);
+      //return console.log(result.data);
     } catch (e) {
-      return e.printStackTrace();
+      return console.log(e);
     }
   };
 
-  if (tmp === 0) {
-    console.log('loaded');
-    //return loadPosts();
-  }
   return (
     <React.Fragment>
       <StatusBar
         barStyle="dark-content"
         hidden={false}
         backgroundColor="white"
-        translucent={true}
+        translucent={false}
       />
-      <View style={{flex: 1, backgroundColor: '#f7f7f7'}}>
-        <View style={styles.container}>
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-              Alert.alert('Modal has been closed.');
-              setModalVisible(!modalVisible);
-            }}>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Text
-                  style={{color: 'black', fontWeight: 'bold', fontSize: 16}}>
-                  Logout of all platforms at once
-                </Text>
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonClose]}
-                  onPress={() => {
-                    logOut();
-                    setModalVisible(!modalVisible);
-                  }}>
-                  <Text style={styles.textStyle}>Log Out</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    width: 100,
-                    marginTop: 20,
-                    borderRadius: 20,
-                    padding: 10,
-                    elevation: 1,
-                  }}
-                  onPress={() => setModalVisible(!modalVisible)}>
-                  <Text style={styles.textStyle}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-
+      <View style={styles.container}>
+        <View
+          style={{
+            flex: 1,
+            height: 50,
+            weight: '100%',
+            flexDirection: 'row',
+            backgroundColor: 'white',
+            marginBottom: 0,
+            marginTop: 0,
+          }}>
+          <Image
+            source={require('../assets/images/logo.png')}
+            style={{
+              height: 40,
+              width: 40,
+              borderRadius: 200,
+              marginRight: '5%',
+            }}
+          />
           <View
             style={{
-              height: 50,
-              weight: 100,
-              flexDirection: 'row',
-              backgroundColor: '#f7f7f7',
-              marginBottom: 0,
-              marginTop: 170,
+              height: 40,
+              marginTop: 3,
+              marginRight: '50%',
+              backgroundColor: 'white',
             }}>
-            <Image
-              source={require('../assets/images/logo.png')}
-              style={{
-                height: 40,
-                width: 40,
-                borderRadius: 200,
-                marginLeft: 10,
-                marginTop: 10,
-              }}
-            />
-            <TouchableOpacity
-              style={{
-                marginLeft: 10,
-                height: 32,
-                weight: 30,
-                marginLeft: 300,
-                marginTop: 13,
-              }}
-              onPress={() => setModalVisible(true)}>
-              <Icon name="logout" size={30} color="black" />
-            </TouchableOpacity>
+            {user.username && (
+              <Text
+                style={{
+                  color: 'black',
+                  fontSize: 24,
+                  fontFamily: 'Open Sans',
+                }}>
+                {' '}
+                Hi, {user.username}
+              </Text>
+            )}
           </View>
-          <View style={{width: 350, backgroundColor: '#f7f7f7'}}>
-            <Text style={styles.textbold}> Hi {username},</Text>
-            <Text style={styles.textb}>
-              {' '}
-              Welcome to your personal post scheduler
-            </Text>
+        </View>
+        <ScrollView alwaysBounceVertical={false}>
+          <View style={{flex: 2, justifyContent: 'center'}}>
+            {posts && (
+              <View
+                style={{
+                  marginTop: '30%',
+                  justifyContent: 'center',
+                }}>
+                <Carousel
+                  layout={'default'}
+                  ref={ref => (this.carousel = ref)}
+                  data={posts}
+                  sliderWidth={410}
+                  itemWidth={250}
+                  renderItem={this._renderPost}
+                />
+              </View>
+            )}
           </View>
-          <View style={{marginTop: 30, backgroundColor: '#f7f7f7'}}>
+          <View
+            style={{
+              flex: 2,
+              marginTop: '20%',
+              backgroundColor: 'white',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
             <ScrollView horizontal={true}>
               <TouchableOpacity
                 style={styles.icon}
@@ -235,178 +237,151 @@ const Home = ({navigation}) => {
               </TouchableOpacity>
             </ScrollView>
           </View>
-        </View>
-        <View style={{flex: 3, marginBottom: 20, backgroundColor: '#f7f7f7'}}>
-          <ScrollView alwaysBounceVertical={false}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 10,
-              }}>
-              <Text
+          <View style={{flex: 2, marginBottom: 20, backgroundColor: 'white'}}>
+            <ScrollView alwaysBounceVertical={false}>
+              <View
                 style={{
-                  flex: 1,
-                  width: 50,
-                  textAlign: 'left',
-                  marginLeft: 30,
-                  fontSize: 18,
-                  fontWeight: 'bold',
-                  color: 'black',
-                  fontFamily: 'monospace',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginTop: '10%',
                 }}>
-                Posts
-              </Text>
-              <TouchableOpacity
-                style={{marginRight: 30}}
-                onPress={() => {
-                  navigation.navigate('SeeAll', {
-                    profile: profileData,
-                    item: postData,
-                  });
-                }}>
-                <Icon name="ellipsis1" size={25} color="black" />
-              </TouchableOpacity>
-            </View>
-            {postData && (
-              <FlatList
-                data={postData.slice(0, 15)}
-                horizontal={true}
-                keyExtractor={(item, index) => item.toString()}
-                initialNumToRender={10}
-                renderItem={({item}) => (
-                  <View style={[styles.card, styles.elevation]}>
-                    <View
-                      style={{
-                        borderColor: 'grey',
-                        borderBottomWidth: 1,
-                        height: 30,
-                        width: '100%',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                      }}>
+                <Text
+                  style={{
+                    flex: 1,
+                    width: 50,
+                    textAlign: 'left',
+                    marginLeft: 24,
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    color: 'black',
+                    fontFamily: 'monospace',
+                  }}>
+                  Scheduled Posts
+                </Text>
+                <TouchableOpacity
+                  style={{marginRight: 16}}
+                  onPress={() => {
+                    navigation.navigate('SeeAll', {
+                      profile: profileData,
+                      item: postData,
+                    });
+                  }}>
+                  <Text
+                    style={{
+                      color: '#1778f2',
+                      fontSize: 14,
+                      fontFamily: 'OpenSans',
+                      fontWeight: 'bold',
+                    }}>
+                    View all
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              {postData && (
+                <FlatList
+                  data={postData.slice(0, 15)}
+                  horizontal={true}
+                  keyExtractor={(item, index) => item.toString()}
+                  initialNumToRender={10}
+                  renderItem={({item}) => (
+                    <View style={[styles.card, styles.elevation]}>
+                      <View
+                        style={{
+                          borderColor: 'grey',
+                          borderBottomWidth: 1,
+                          height: 30,
+                          width: '100%',
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                        }}></View>
+                      <Text
+                        style={[
+                          styles.textb,
+                          {marginRight: 120, alignSelf: 'stretch'},
+                        ]}>
+                        {item.message}
+                      </Text>
                       <Image
                         style={{
-                          height: 25,
-                          width: 25,
-                          marginTop: 0,
-                          borderRadius: 50,
-                          marginRight: 200,
+                          margin: 3,
+                          height: 150,
+                          width: 150,
+                          borderRadius: 8,
+                          alignSelf: 'center',
                         }}
-                        source={{uri: profileData.url}}
+                        source={
+                          item.full_picture
+                            ? {uri: item.full_picture}
+                            : require('../assets/images/Default_Image.png')
+                        }
                       />
+                      <Text
+                        style={{
+                          color: 'black',
+                          fontFamily: 'monospace',
+                          fontSize: 7,
+                          marginTop: 5,
+                          marginRight: 60,
+                        }}>
+                        {item.created_time}
+                      </Text>
                     </View>
-                    <Text
-                      style={[
-                        styles.textb,
-                        {marginRight: 120, alignSelf: 'stretch'},
-                      ]}>
-                      {item.message}
-                    </Text>
-                    <Image
-                      style={{
-                        margin: 3,
-                        height: 150,
-                        width: 150,
-                        borderRadius: 8,
-                        alignSelf: 'center',
-                      }}
-                      source={
-                        item.full_picture
-                          ? {uri: item.full_picture}
-                          : require('../assets/images/Default_Image.png')
-                      }
-                    />
-                    <Text
-                      style={{
-                        color: 'black',
-                        fontFamily: 'monospace',
-                        fontSize: 7,
-                        marginTop: 5,
-                        marginRight: 60,
-                      }}>
-                      {item.created_time}
-                    </Text>
-                  </View>
-                )}></FlatList>
-            )}
-            {instaPost && (
-              <FlatList
-                data={instaPost}
-                horizontal={true}
-                keyExtractor={(item, index) => item.toString()}
-                initialNumToRender={10}
-                renderItem={({item}) => (
-                  <View style={[styles.card, styles.elevation]}>
-                    <View
-                      style={{
-                        borderColor: 'grey',
-                        borderBottomWidth: 1,
-                        height: 30,
-                        width: '100%',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                      }}></View>
-                    <Text
-                      style={[
-                        styles.textb,
-                        {marginRight: 120, alignSelf: 'stretch'},
-                      ]}>
-                      {item.caption}
-                    </Text>
-                    <Image
-                      style={{
-                        margin: 3,
-                        height: 150,
-                        width: 150,
-                        borderRadius: 8,
-                        alignSelf: 'center',
-                      }}
-                      source={
-                        item.media_url
-                          ? {uri: item.media_url}
-                          : require('../assets/images/Default_Image.png')
-                      }
-                    />
-                    <Text
-                      style={{
-                        color: 'black',
-                        fontFamily: 'monospace',
-                        fontSize: 7,
-                        marginTop: 5,
-                        marginRight: 60,
-                      }}>
-                      {item.timestamp}
-                    </Text>
-                  </View>
-                )}></FlatList>
-            )}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 0,
-              }}>
-              <Text
-                style={{
-                  flex: 1,
-                  width: 50,
-                  textAlign: 'left',
-                  marginLeft: 30,
-                  fontSize: 18,
-                  fontWeight: 'bold',
-                  color: 'black',
-                  fontFamily: 'monospace',
-                }}>
-                Scheduled Posts
-              </Text>
-              <TouchableOpacity style={{marginRight: 30}} onPress={() => {}}>
-                <Icon name="ellipsis1" size={25} color="black" />
-              </TouchableOpacity>
-            </View>
-            <FlatList></FlatList>
-          </ScrollView>
-        </View>
+                  )}></FlatList>
+              )}
+              {instaPost && (
+                <FlatList
+                  data={instaPost}
+                  horizontal={true}
+                  keyExtractor={(item, index) => item.toString()}
+                  initialNumToRender={10}
+                  renderItem={({item}) => (
+                    <View style={[styles.card, styles.elevation]}>
+                      <View
+                        style={{
+                          borderColor: 'grey',
+                          borderBottomWidth: 1,
+                          height: 30,
+                          width: '100%',
+                          flexDirection: 'row',
+                          justifyContent: 'center',
+                        }}></View>
+                      <Text
+                        style={[
+                          styles.textb,
+                          {marginRight: 120, alignSelf: 'stretch'},
+                        ]}>
+                        {item.caption}
+                      </Text>
+                      <Image
+                        style={{
+                          margin: 3,
+                          height: 150,
+                          width: 150,
+                          borderRadius: 8,
+                          alignSelf: 'center',
+                        }}
+                        source={
+                          item.media_url
+                            ? {uri: item.media_url}
+                            : require('../assets/images/Default_Image.png')
+                        }
+                      />
+                      <Text
+                        style={{
+                          color: 'black',
+                          fontFamily: 'monospace',
+                          fontSize: 7,
+                          marginTop: 5,
+                          marginRight: 60,
+                        }}>
+                        {item.timestamp}
+                      </Text>
+                    </View>
+                  )}></FlatList>
+              )}
+            </ScrollView>
+          </View>
+        </ScrollView>
       </View>
     </React.Fragment>
   );
@@ -432,16 +407,16 @@ const styles = StyleSheet.create({
     margin: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: 'white',
     borderRadius: 6,
     shadowOpacity: 1,
     shadowColor: 'black',
   },
   container: {
-    flex: 2,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: 'white',
   },
   centeredView: {
     flex: 1,
@@ -516,35 +491,3 @@ const styles = StyleSheet.create({
   },
 });
 AppRegistry.registerComponent('Home', Home);
-
-/*
-
-<View style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
-        <View style={{flex: 1, height: 1, backgroundColor: 'black'}} />
-        <View>
-          <Text style={{width: 50, textAlign: 'center', color: 'black' }}>Posts</Text>
-        </View>
-        <View style={{flex: 1, height: 1, backgroundColor: 'black'}} />
-        </View>
-        <View style={{height: 300}}>
-
-        </View>
-        <FlatList>
-
-        </FlatList>
-
-        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 0}}>
-        <View style={{flex: 1, height: 1, backgroundColor: 'black'}} />
-        <View>
-          <Text style={{width: 130, textAlign: 'center', color: 'black' }}>Scheduled Posts</Text>
-        </View>
-        <View style={{flex: 1, height: 1, backgroundColor: 'black'}} />
-        </View>
-        <View style={{height: 300}}>
-
-        </View>
-        <FlatList>
-          
-        </FlatList>
-
-*/

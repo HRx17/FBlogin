@@ -65,6 +65,8 @@ const Login = ({navigation}) => {
         Toast.hide(toast);
       }, 2000);
     } else {
+      onChangeText('');
+      onChangePass('');
       var userObj = {
         email: email,
         password: password,
@@ -83,7 +85,7 @@ const Login = ({navigation}) => {
               }, 2000);
             } else {
               console.log(response.data.id);
-              AsyncStorage.setItem('Id', response.data.id);
+              AsyncStorage.setItem('Id', response.data.id.toString());
               AsyncStorage.setItem('isLoggedIn', 'true');
               navigation.navigate('Connect');
             }
@@ -127,7 +129,7 @@ const Login = ({navigation}) => {
         .post('http://192.168.29.166:3000/api/user/signup', userObj)
         .then(response => {
           console.log(response.data);
-          AsyncStorage.setItem('Id', response.data._id);
+          AsyncStorage.setItem('Id', response.data._id.toString());
           navigation.navigate('HomeScreen', {
             userid: userId,
             access: accesstoken,
