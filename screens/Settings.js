@@ -45,6 +45,9 @@ const Settings = ({navigation}) => {
   showLogout = () => {
     setModalVisible(!modalVisible);
   };
+  showDelete = () => {
+    setModalVisible(!modalVisible);
+  };
   logout = () => {
     dispatchMethod();
     AsyncStorage.setItem('isLoggedIn', 'false');
@@ -81,7 +84,7 @@ const Settings = ({navigation}) => {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={{color: 'black', fontWeight: 'bold', fontSize: 16}}>
-                Logout of all platforms at once
+                Are you sure you wish to continue?
               </Text>
               <TouchableOpacity
                 style={[styles.button, styles.buttonClose]}
@@ -106,11 +109,36 @@ const Settings = ({navigation}) => {
           </View>
         </Modal>
         <Image
-          style={{marginTop: '5%'}}
+          style={{
+            marginTop: '5%',
+            marginBottom: '5%',
+            borderRadius: 550,
+            height: 200,
+            width: 200,
+          }}
           source={require('../assets/images/intro_pic.png')}
         />
         <View style={styles.segment}>
-          <Icon name="mail" color={'black'} size={40} />
+          <Icon name="mail" color={'black'} size={40} style={{margin: 10}} />
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 20,
+              margin: 15,
+              fontWeight: 'bold',
+            }}>
+            Email here
+          </Text>
+        </View>
+        <View style={styles.segment}>
+          <Icon name="mail" color={'black'} size={40} style={{margin: 10}} />
+          <Text
+            style={{color: 'black', fontSize: 20, fontWeight: 'bold'}}></Text>
+        </View>
+        <View style={styles.segment}>
+          <Icon name="mail" color={'black'} size={40} style={{margin: 10}} />
+          <Text
+            style={{color: 'black', fontSize: 20, fontWeight: 'bold'}}></Text>
         </View>
         <View style={{flex: 2, marginTop: 40}}>
           <TouchableOpacity style={styles.insta} onPress={() => showLogout()}>
@@ -121,6 +149,16 @@ const Settings = ({navigation}) => {
                 alignItems: 'center',
               }}>
               Log Out
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.delete} onPress={() => showLogout()}>
+            <Text
+              style={{
+                color: 'white',
+                fontWeight: 'bold',
+                alignItems: 'center',
+              }}>
+              Delete Account
             </Text>
           </TouchableOpacity>
         </View>
@@ -134,6 +172,9 @@ export default Settings;
 const styles = StyleSheet.create({
   segment: {
     width: '100%',
+    marginBottom: '1%',
+    marginTop: '1%',
+    alignContent: 'center',
     height: 60,
     backgroundColor: 'white',
     flexDirection: 'row',
@@ -156,7 +197,21 @@ const styles = StyleSheet.create({
     borderWidth: 1.4,
     shadowOpacity: 1,
     shadowColor: 'black',
-    margin: 15,
+    margin: 10,
+  },
+  delete: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    width: 280,
+    height: 48,
+    backgroundColor: '#e33030',
+    borderRadius: 25,
+    borderColor: '#e33030',
+    borderWidth: 1.4,
+    shadowOpacity: 1,
+    shadowColor: 'black',
+    margin: 10,
   },
   centeredView: {
     flex: 1,

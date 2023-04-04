@@ -27,7 +27,7 @@ import SocialType from '../components/SocialType';
 const dimentions = Dimensions.get('screen');
 const ip = '192.168.1.21';
 
-const Home = ({navigation}) => {
+const Home = ({route, navigation}) => {
   const [user, setUser] = useState('');
   const [id, setId] = useState('');
   const [fb, setFb] = useState('');

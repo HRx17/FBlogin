@@ -3,7 +3,7 @@ import {createMaterialBottomTabNavigator} from '@react-navigation/material-botto
 import {AppRegistry} from 'react-native';
 import Home from './Home';
 import Settings from './Settings';
-import Profile from './Profile';
+import SchedulePost from './SchedulePost';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {BackHandler} from 'react-native';
 import {Alert} from 'react-native';
@@ -26,21 +26,21 @@ const HomeScreen = ({navigation}) => {
         }}
       />
       <Tab.Screen
-        name="Profile"
-        component={Profile}
+        name="Schedule Post"
+        component={SchedulePost}
         options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({color}) => <Icon name="user" color={color} size={26} />,
+          tabBarLabel: 'Schedule Post',
+          tabBarIcon: ({color}) => (
+            <Icon name="calendar" color={color} size={26} />
+          ),
         }}
       />
       <Tab.Screen
-        name="Settings"
+        name="Profile"
         component={Settings}
         options={{
-          tabBarLabel: 'Settings',
-          tabBarIcon: ({color}) => (
-            <Icon name="setting" color={color} size={26} />
-          ),
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({color}) => <Icon name="user" color={color} size={26} />,
         }}
       />
     </Tab.Navigator>
