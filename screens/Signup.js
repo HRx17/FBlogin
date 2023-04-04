@@ -3,7 +3,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {RootSiblingParent} from 'react-native-root-siblings';
 import Toast from 'react-native-root-toast';
-
+import DocumentPicker from 'react-native-document-picker';
 import {
   AppRegistry,
   TouchableOpacity,
@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import {TextInput} from 'react-native-paper';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 var userId = '';
 var accesstoken = '';
@@ -49,6 +50,30 @@ const Signup = ({navigation}) => {
     _retrieveData();
   }, []);
 
+  //image picker
+  const [image, setProfile] = useState('');
+
+  const openImageLib = async () => {
+    const res = await DocumentPicker.pick({
+      type: [DocumentPicker.types.images],
+    });
+    //const result = await launchImageLibrary();
+    const data = new FormData();
+    console.log(res);
+    setProfile(res);
+    data.append('image', res[0]);
+    fetch('http://192.168.1.21:3000/api/user/imgupload', {
+      method: 'POST',
+      body: data,
+    })
+      .then(result => {
+        console.log('File Sent');
+      })
+      .catch(err => {
+        console.log(err.message);
+      });
+  };
+
   // signin api call method
   register = () => {
     if (email === '' || password === '' || password2 === '' || name === '') {
@@ -74,7 +99,7 @@ const Signup = ({navigation}) => {
       console.log(userObj);
       if (userObj != null) {
         axios
-          .post('http://192.168.0.195:3000/api/user/signup', userObj)
+          .post('http://192.168.1.21:3000/api/user/signup', userObj)
           .then(response => {
             if (response.data.message) {
               let toast = Toast.show(response.data.message, {
@@ -107,7 +132,7 @@ const Signup = ({navigation}) => {
           translucent={true}
         />
         <View style={{flex: 1, backgroundColor: 'white'}}>
-          <View style={{marginLeft: 24, marginTop: 64}}>
+          <View style={{marginLeft: 24, marginTop: 50}}>
             <Text style={styles.textBold}>Sign Up</Text>
             <Text
               style={{
@@ -120,9 +145,24 @@ const Signup = ({navigation}) => {
             </Text>
           </View>
           <View style={styles.container}>
+            <View>
+              <TouchableOpacity onPress={openImageLib} style={styles.uploadBtn}>
+                {image ? (
+                  <Image
+                    source={{uri: image}}
+                    style={{height: '100%', width: '100%', borderRadius: 100}}
+                  />
+                ) : (
+                  <Text style={{color: 'black', textAlign: 'center'}}>
+                    Upload Image
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
             <TextInput
               style={{
                 height: 40,
+                marginTop: 30,
                 backgroundColor: 'white',
                 width: '92%',
                 margin: 8,
@@ -159,6 +199,7 @@ const Signup = ({navigation}) => {
               }}
               underlineColorAndroid="black"
               textContentType="password"
+              secureTextEntry={true}
               placeholder="Password"
               onChangeText={onChangePass}
               value={password}
@@ -174,6 +215,7 @@ const Signup = ({navigation}) => {
               }}
               underlineColorAndroid="black"
               textContentType="password"
+              secureTextEntry={true}
               placeholder="Confirm Password"
               onChangeText={onChangePass2}
               value={password2}
@@ -227,7 +269,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
-    marginTop: 100,
+    marginTop: 60,
+  },
+  uploadBtn: {
+    height: 120,
+    width: 120,
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderRadius: 125 / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   elevation: {
     elevation: 7,

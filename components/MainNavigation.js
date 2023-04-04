@@ -49,6 +49,8 @@ class MainNavigation extends React.PureComponent {
           name="HomeScreen"
           component={HomeScreen}
           options={{
+            gestureEnabled: false,
+            headerLeft: null,
             headerTransparent: true,
             header: ({navigation}) => (
               <NavBar navigation={navigation} main={false} />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -9,6 +9,11 @@ import {AccessToken, LoginButton} from 'react-native-fbsdk-next';
 const dimentions = Dimensions.get('screen');
 
 const Profile = ({navigation}) => {
+  useEffect(() => {
+    navigation.addListener('beforeRemove', event => {
+      event.preventDefault();
+    });
+  }, [navigation]);
   return (
     <React.Fragment>
       <View style={styles.container}>

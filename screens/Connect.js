@@ -29,7 +29,7 @@ var userName = '';
 var emaill = '';
 
 const dimentions = Dimensions.get('screen');
-const ip = '192.168.0.195';
+const ip = '192.168.1.21';
 
 const Connect = ({navigation}) => {
   setIgToken = data => {

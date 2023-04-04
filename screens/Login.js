@@ -30,6 +30,7 @@ var emaill = '';
 var id = '';
 
 const dimentions = Dimensions.get('screen');
+const ip = '192.168.1.21';
 
 const Login = ({navigation}) => {
   const [email, onChangeText] = useState('');
@@ -65,34 +66,38 @@ const Login = ({navigation}) => {
         Toast.hide(toast);
       }, 2000);
     } else {
-      onChangeText('');
-      onChangePass('');
-      var userObj = {
+      let userObj = {
         email: email,
         password: password,
       };
       if (userObj != null) {
-        console.log(userName);
-        axios
-          .post('http://192.168.0.195:3000/api/user/login', userObj)
-          .then(response => {
-            if (response.data.message) {
-              let toast = Toast.show(response.data.message, {
-                duration: Toast.durations.LONG,
-              });
-              setTimeout(function hideToast() {
-                Toast.hide(toast);
-              }, 2000);
-            } else {
-              console.log(response.data.id);
-              AsyncStorage.setItem('Id', response.data.id.toString());
-              AsyncStorage.setItem('isLoggedIn', 'true');
-              navigation.navigate('Connect');
-            }
-          })
-          .catch(error => {
-            console.error(error);
-          });
+        try {
+          console.log(ip);
+          axios
+            .post(`http://${ip}:3000/api/user/login`, userObj)
+            .then(response => {
+              if (response.data.message) {
+                let toast = Toast.show(response.data.message, {
+                  duration: Toast.durations.LONG,
+                });
+                setTimeout(function hideToast() {
+                  Toast.hide(toast);
+                }, 2000);
+              } else {
+                console.log(response.data.id);
+                AsyncStorage.setItem('Id', response.data.id.toString());
+                AsyncStorage.setItem('isLoggedIn', 'true');
+                navigation.navigate('Connect');
+                onChangeText('');
+                onChangePass('');
+              }
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        } catch (err) {
+          console.log(err);
+        }
       }
     }
   };
@@ -126,7 +131,7 @@ const Login = ({navigation}) => {
     if (userObj != null) {
       console.log(userName);
       axios
-        .post('http://192.168.29.166:3000/api/user/signup', userObj)
+        .post(`http://${ip}:3000/api/user/signup`, userObj)
         .then(response => {
           console.log(response.data);
           AsyncStorage.setItem('Id', response.data._id.toString());
@@ -187,6 +192,7 @@ const Login = ({navigation}) => {
                 color: 'black',
                 padding: 8,
               }}
+              secureTextEntry={true}
               underlineColorAndroid="black"
               textContentType="password"
               placeholder="Password"

@@ -6,17 +6,22 @@ import {
   AppRegistry,
   StyleSheet,
   View,
+  TouchableOpacity,
   Text,
   Button,
+  Image,
   Dimensions,
+  Modal,
 } from 'react-native';
 
 import {AccessToken, LoginButton} from 'react-native-fbsdk-next';
-
+import Icon from 'react-native-vector-icons/MaterialIcons';
 const dimentions = Dimensions.get('screen');
+const ip = '192.168.1.21';
 
-const Home = ({navigation}) => {
+const Settings = ({navigation}) => {
   const [id, setId] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const _retrieveData = async () => {
@@ -28,109 +33,193 @@ const Home = ({navigation}) => {
       }
     };
     _retrieveData();
-  }, []);
+  }, [navigation]);
 
-  const _getFeed = () => {
-    const infoRequest = new GraphRequest(
-      '/me?fields=id,name,email',
-      null,
-      _responseInfoCallback,
-    );
-    new GraphRequestManager().addRequest(infoRequest).start();
+  dispatchMethod = () => {
+    navigation.addListener('beforeRemove', event => {
+      navigation.dispatch(event.data.action);
+    });
+    navigation.navigate('Login');
   };
-  const _responseInfoCallback = (error, result) => {
-    if (error) {
-      console.log('Error fetching data: ', error.toString());
-      return;
-    }
-    userName = result.name.toString();
-    userId = result.id.toString();
-    emaill = result.email.toString();
-    AsyncStorage.setItem('userId', result.id.toString());
 
-    var userObj = {
-      username: userName,
-      email: emaill,
-      accessToken: accesstoken,
-      userid: userId,
-    };
-    if (userName) {
+  showLogout = () => {
+    setModalVisible(!modalVisible);
+  };
+  logout = () => {
+    dispatchMethod();
+    AsyncStorage.setItem('isLoggedIn', 'false');
+    AsyncStorage.setItem('instatoken', '');
+    AsyncStorage.setItem('fbaccessToken', '');
+    try {
       axios
-        .post('http://192.168.29.166:3000/api/user/signup', userObj)
+        .post(`http://${ip}:3000/api/user/logout/${id}`)
         .then(response => {
           console.log(response.data);
         })
         .catch(error => {
           console.error(error);
         });
+    } catch (err) {
+      console.log(err);
     }
   };
+
   return (
     <React.Fragment>
       <View style={styles.container}>
-        <View style={{marginTop: 40}}>
-          <Button
-            title="Logout"
-            onPress={() => {
-              AsyncStorage.setItem('isLoggedIn', 'false');
-              AsyncStorage.setItem('instatoken', '');
-              AsyncStorage.setItem('fbaccessToken', '');
-              try {
-                axios
-                  .post(`http://192.168.0.195:3000/api/user/logout/${id}`)
-                  .then(response => {
-                    console.log(response.data);
-                  })
-                  .catch(error => {
-                    console.error(error);
-                  });
-              } catch (err) {
-                console.log(err);
-              }
-              navigation.navigate('Login');
-            }}
-          />
-        </View>
-        <LoginButton
-          readPermissions={[
-            'public_profile',
-            'user_photos',
-            'user_posts',
-            'user_events',
-            'user_likes',
-          ]}
-          async
-          onLoginFinished={async (error, result) => {
-            if (error) {
-            } else if (result.isCancelled) {
-              console.log('login is cancelled.');
-            } else {
-              const data = await AccessToken.getCurrentAccessToken();
-              AsyncStorage.setItem('accessToken', data.accessToken.toString());
-              AsyncStorage.setItem('isLoggedIn', true);
-              accesstoken = data.accessToken.toString();
-            }
-          }}
-          onLogoutFinished={() => {
-            console.log('logout.');
-            AsyncStorage.removeItem('isLoggedIn');
-            AsyncStorage.setItem('isLoggedIn', false);
-            navigation.navigate('Login');
-          }}
+        <TouchableOpacity style={{marginTop: '5%', marginLeft: '80%'}}>
+          <Icon name="mode-edit" size={32} color={'black'} />
+        </TouchableOpacity>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+            setModalVisible(!modalVisible);
+          }}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text style={{color: 'black', fontWeight: 'bold', fontSize: 16}}>
+                Logout of all platforms at once
+              </Text>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => {
+                  logout();
+                  setModalVisible(!modalVisible);
+                }}>
+                <Text style={styles.textStyle}>Log Out</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  width: 100,
+                  marginTop: 20,
+                  borderRadius: 20,
+                  padding: 10,
+                  elevation: 1,
+                }}
+                onPress={() => setModalVisible(!modalVisible)}>
+                <Text style={styles.textStyle}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        <Image
+          style={{marginTop: '5%'}}
+          source={require('../assets/images/intro_pic.png')}
         />
+        <View style={styles.segment}>
+          <Icon name="mail" color={'black'} size={40} />
+        </View>
+        <View style={{flex: 2, marginTop: 40}}>
+          <TouchableOpacity style={styles.insta} onPress={() => showLogout()}>
+            <Text
+              style={{
+                color: 'white',
+                fontWeight: 'bold',
+                alignItems: 'center',
+              }}>
+              Log Out
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </React.Fragment>
   );
 };
 
-export default Home;
+export default Settings;
 
 const styles = StyleSheet.create({
+  segment: {
+    width: '100%',
+    height: 60,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f7f7f7',
   },
+  insta: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    width: 280,
+    height: 48,
+    backgroundColor: '#1778f2',
+    borderRadius: 25,
+    borderColor: '#1778f2',
+    borderWidth: 1.4,
+    shadowOpacity: 1,
+    shadowColor: 'black',
+    margin: 15,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  icon: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 15,
+    width: 55,
+    height: 55,
+    borderRadius: 5,
+    borderColor: 'black',
+    borderWidth: 0.5,
+    shadowOpacity: 1,
+    shadowColor: 'black',
+    marginTop: 7,
+    shadowColor: 'grey',
+    marginBottom: 27,
+  },
+  modalView: {
+    margin: 10,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  button: {
+    width: 130,
+    marginTop: 40,
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  textbold: {
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 30,
+    marginTop: 40,
+    textAlign: 'left',
+    fontFamily: 'monospace',
+  },
 });
-AppRegistry.registerComponent('Home', Home);
+AppRegistry.registerComponent('Settings', Settings);

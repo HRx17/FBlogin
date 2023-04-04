@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import {AppRegistry} from 'react-native';
 import Home from './Home';
 import Settings from './Settings';
 import Profile from './Profile';
 import Icon from 'react-native-vector-icons/AntDesign';
+import {BackHandler} from 'react-native';
+import {Alert} from 'react-native';
 
 const Tab = createMaterialBottomTabNavigator();
 

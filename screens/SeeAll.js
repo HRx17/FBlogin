@@ -1,10 +1,10 @@
-import React, {useState} from 'react'; 
+import React, {useState} from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
   AppRegistry,
-  StyleSheet, 
+  StyleSheet,
   View,
   Alert,
   Pressable,
@@ -12,112 +12,132 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Dimensions
-} from 'react-native'; 
+  Dimensions,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
-import { ScrollView } from 'react-native';
-import { FlatList } from 'react-native';
-import { GraphRequest, GraphRequestManager } from 'react-native-fbsdk-next';
+import {ScrollView} from 'react-native';
+import {FlatList} from 'react-native';
+import {GraphRequest, GraphRequestManager} from 'react-native-fbsdk-next';
 
 var userId = AsyncStorage.getItem('userId');
 var accesstoken = AsyncStorage.getItem('accessToken');
 console.log(accesstoken);
-const username = "Haet";
-
-
+const username = 'Haet';
 
 const dimentions = Dimensions.get('screen');
 
-const SeeAll  = ({route}) => {
-
+const SeeAll = ({route}) => {
   const postData = route.params.item;
-  const profileData = route.params.profile;
-  const [modalVisible, setModalVisible] = useState(false);
   logOut = () => {
     navigation.navigate('Login');
-    console.log("logout");
-  }
-  
- 
-    return ( 
-      <React.Fragment> 
+    console.log('logout');
+  };
+
+  return (
+    <React.Fragment>
       <View style={{flex: 1, backgroundColor: '#f7f7f7'}}>
-      <View style={ styles.container }>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
-          setModalVisible(!modalVisible);
-        }}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={{color: 'black', fontWeight: 'bold', fontSize: 16}}>Logout of all platforms at once</Text>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => {
-                logOut();
-                setModalVisible(!modalVisible)}}>
-              <Text style={styles.textStyle}>Log Out</Text>
-            </TouchableOpacity>
+        <View style={styles.container}>
+          <View
+            style={{
+              height: 50,
+              weight: 100,
+              flexDirection: 'row',
+              backgroundColor: '#f7f7f7',
+              marginBottom: 0,
+              marginTop: 80,
+            }}>
+            <Image
+              source={require('../assets/images/logo.png')}
+              style={{
+                height: 40,
+                width: 40,
+                borderRadius: 200,
+                marginLeft: 10,
+                marginTop: 0,
+              }}
+            />
             <TouchableOpacity
               style={{
-                width: 100,
-                marginTop: 20,
-                borderRadius: 20,
-                padding: 10,
-                elevation: 1,
+                marginLeft: 10,
+                height: 32,
+                weight: 30,
+                marginLeft: 300,
+                marginTop: 3,
               }}
-              onPress={() => setModalVisible(!modalVisible)}>
-              <Text style={styles.textStyle}>Cancel</Text>
+              onPress={() => setModalVisible(true)}>
+              <Icon name="setting" size={30} color="black" />
             </TouchableOpacity>
           </View>
         </View>
-      </Modal>
-
-      <View style={{height: 50, weight: 100, flexDirection: 'row',backgroundColor: '#f7f7f7', marginBottom: 0, marginTop: 80}}>
-        <Image source={require("../assets/images/logo.png")} style={{height: 40, width: 40,borderRadius: 200, marginLeft: 10, marginTop: 0}}/>
-          <TouchableOpacity
-          style={{marginLeft: 10, height: 32, weight: 30, marginLeft: 300, marginTop: 3}}
-          onPress={() => setModalVisible(true)}>
-            <Icon name="setting" size={30} color="black" />
-          </TouchableOpacity>
+        {postData && (
+          <FlatList
+            data={postData}
+            contentContainerStyle={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 20,
+              marginTop: 90,
+            }}
+            keyExtractor={(item, index) => item.toString()}
+            renderItem={({item}) => (
+              <View style={[styles.card, styles.elevation]}>
+                <View
+                  style={{
+                    borderColor: 'grey',
+                    borderBottomWidth: 1,
+                    height: 30,
+                    width: '100%',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}></View>
+                <Text
+                  style={[
+                    styles.textb,
+                    {marginRight: 120, alignSelf: 'stretch'},
+                  ]}>
+                  {item.caption}
+                </Text>
+                <Image
+                  style={{
+                    margin: 3,
+                    height: 150,
+                    width: 150,
+                    borderRadius: 8,
+                    alignSelf: 'center',
+                  }}
+                  source={
+                    item.media_url
+                      ? {uri: item.media_url}
+                      : require('../assets/images/Default_Image.png')
+                  }
+                />
+                <Text
+                  style={{
+                    color: 'black',
+                    fontFamily: 'monospace',
+                    fontSize: 7,
+                    marginTop: 5,
+                    marginRight: 60,
+                  }}>
+                  {item.created_time}
+                </Text>
+              </View>
+            )}></FlatList>
+        )}
       </View>
-        </View>
-        {postData &&
-        <FlatList data={postData}
-        contentContainerStyle={{justifyContent: 'center', alignItems: 'center', marginBottom: 20, marginTop: 90}}
-        keyExtractor={(item, index) => item.toString()}
-        initialNumToRender={10}
-        renderItem={({item})=> (
-        <View style={[styles.card, styles.elevation]}>
-          <View style={{borderColor: 'grey',borderBottomWidth: 1, height: 30, width: '100%', flexDirection: 'row', justifyContent: 'center'}}>
-            <Image style={{height: 25, width: 25, marginTop: 0, borderRadius: 50, marginRight: 200}}source={{uri: profileData.url}}/>
-          </View>
-          <Text style={[styles.textb,{marginRight: 120, alignSelf: 'stretch'}]}>{item.message}</Text>
-          <Image style={{margin: 3, height: 150, width: 150, borderRadius: 8, alignSelf: 'center'}} source={item.full_picture ? {uri: item.full_picture} : require('../assets/images/Default_Image.png')}/>
-          <Text style={{color: 'black', fontFamily: 'monospace', fontSize: 7, marginTop: 5, marginRight: 60}}>{item.created_time}</Text>
-        </View>
-        )
-        }
-        >
-        </FlatList>
-        }
-        </View>
-      </React.Fragment> 
-    ); 
-  }
+    </React.Fragment>
+  );
+};
 
 export default SeeAll;
 
-const styles = StyleSheet.create({ 
+const styles = StyleSheet.create({
   viewStyleForLine: {
-    borderBottomColor: "black", 
-    borderBottomWidth: StyleSheet.hairlineWidth, 
-    alignSelf:'stretch',
+    borderBottomColor: 'black',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    alignSelf: 'stretch',
     marginBottom: 440,
-    width: "100%"
+    width: '100%',
   },
   elevation: {
     elevation: 7,
@@ -129,16 +149,16 @@ const styles = StyleSheet.create({
     margin: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: "#f7f7f7",
+    backgroundColor: '#f7f7f7',
     borderRadius: 6,
     shadowOpacity: 1,
     shadowColor: 'black',
   },
-  container: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center',  
-    backgroundColor: '#f7f7f7'
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f7f7f7',
   },
   centeredView: {
     flex: 1,
@@ -148,7 +168,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     flexDirection: 'row',
-    justifyContent: 'center', 
+    justifyContent: 'center',
     alignItems: 'center',
     margin: 15,
     width: 55,
@@ -201,7 +221,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     marginTop: 40,
     textAlign: 'left',
-    fontFamily: 'monospace'
+    fontFamily: 'monospace',
   },
   textb: {
     color: 'black',
@@ -209,10 +229,10 @@ const styles = StyleSheet.create({
     marginLeft: 14,
     marginTop: 5,
     textAlign: 'left',
-    fontFamily: 'monospace'
-  }
-}); 
-AppRegistry.registerComponent('SeeAll',SeeAll);
+    fontFamily: 'monospace',
+  },
+});
+AppRegistry.registerComponent('SeeAll', SeeAll);
 
 /*
 
