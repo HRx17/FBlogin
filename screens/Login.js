@@ -30,7 +30,7 @@ var emaill = '';
 var id = '';
 
 const dimentions = Dimensions.get('screen');
-const ip = '192.168.1.21';
+const ip = 'vivacious-teal-gopher.cyclic.app';
 
 const Login = ({navigation}) => {
   const [email, onChangeText] = useState('');
@@ -74,7 +74,7 @@ const Login = ({navigation}) => {
         try {
           console.log(ip);
           axios
-            .post(`http://${ip}:3000/api/user/login`, userObj)
+            .post(`https://${ip}/api/user/login`, userObj)
             .then(response => {
               if (response.data.message) {
                 let toast = Toast.show(response.data.message, {

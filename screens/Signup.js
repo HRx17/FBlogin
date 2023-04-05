@@ -62,7 +62,7 @@ const Signup = ({navigation}) => {
     console.log(res);
     setProfile(res);
     data.append('image', res[0]);
-    fetch('http://192.168.1.21:3000/api/user/imgupload', {
+    fetch('https://vivacious-teal-gopher.cyclic.app/api/user/imgupload', {
       method: 'POST',
       body: data,
     })

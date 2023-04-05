@@ -17,7 +17,7 @@ import {
 import {AccessToken, LoginButton} from 'react-native-fbsdk-next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 const dimentions = Dimensions.get('screen');
-const ip = '192.168.1.21';
+const ip = 'vivacious-teal-gopher.cyclic.app';
 
 const Settings = ({navigation}) => {
   const [id, setId] = useState('');
@@ -55,7 +55,7 @@ const Settings = ({navigation}) => {
     AsyncStorage.setItem('fbaccessToken', '');
     try {
       axios
-        .post(`http://${ip}:3000/api/user/logout/${id}`)
+        .post(`https://${ip}/api/user/logout/${id}`)
         .then(response => {
           console.log(response.data);
         })
@@ -71,7 +71,7 @@ const Settings = ({navigation}) => {
     <React.Fragment>
       <View style={styles.container}>
         <TouchableOpacity style={{marginTop: '5%', marginLeft: '80%'}}>
-          <Icon name="mode-edit" size={32} color={'black'} />
+          <Icon name="mode-edit" size={22} color={'black'} />
         </TouchableOpacity>
         <Modal
           animationType="slide"
@@ -113,44 +113,72 @@ const Settings = ({navigation}) => {
             marginTop: '5%',
             marginBottom: '5%',
             borderRadius: 550,
-            height: 200,
-            width: 200,
+            height: 150,
+            borderColor: '#1778f2',
+            borderWidth: 3,
+            width: 150,
           }}
-          source={require('../assets/images/intro_pic.png')}
+          source={require('../assets/images/Default_Image.png')}
         />
-        <View style={styles.segment}>
-          <Icon name="mail" color={'black'} size={40} style={{margin: 10}} />
+        <Text></Text>
+        <View style={[styles.segment]}>
+          <Icon name="mail" color={'black'} size={25} style={{margin: 20}} />
           <Text
             style={{
               color: 'black',
-              fontSize: 20,
-              margin: 15,
+              fontSize: 16,
+              margin: 20,
               fontWeight: 'bold',
             }}>
             Email here
           </Text>
         </View>
         <View style={styles.segment}>
-          <Icon name="mail" color={'black'} size={40} style={{margin: 10}} />
+          <Icon name="" color={'black'} size={25} style={{margin: 20}} />
           <Text
-            style={{color: 'black', fontSize: 20, fontWeight: 'bold'}}></Text>
+            style={{
+              color: 'black',
+              fontSize: 16,
+              marginTop: 50,
+              marginBottom: 50,
+            }}>
+            {' '}
+            Information here
+          </Text>
         </View>
-        <View style={styles.segment}>
-          <Icon name="mail" color={'black'} size={40} style={{margin: 10}} />
+        <TouchableOpacity
+          style={[
+            styles.segment,
+            {alignItem: 'center', justifyContent: 'center'},
+          ]}>
           <Text
-            style={{color: 'black', fontSize: 20, fontWeight: 'bold'}}></Text>
-        </View>
+            style={{
+              color: 'black',
+              fontSize: 16,
+              marginTop: '5%',
+              marginLeft: '25%',
+              fontWeight: 'bold',
+            }}>
+            Notification Settings
+          </Text>
+          <TouchableOpacity style={{margin: 20, marginLeft: '25%'}}>
+            <Icon name="arrow-forward-ios" color={'black'} size={20} />
+          </TouchableOpacity>
+        </TouchableOpacity>
         <View style={{flex: 2, marginTop: 40}}>
           <TouchableOpacity style={styles.insta} onPress={() => showLogout()}>
+            <Icon
+              name="logout"
+              color={'white'}
+              size={20}
+              style={{marginRight: '25%'}}
+            />
             <Text
-              style={{
-                color: 'white',
-                fontWeight: 'bold',
-                alignItems: 'center',
-              }}>
+              style={{fontWeight: 'bold', color: 'white', marginRight: '30%'}}>
               Log Out
             </Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.delete} onPress={() => showLogout()}>
             <Text
               style={{
@@ -172,10 +200,11 @@ export default Settings;
 const styles = StyleSheet.create({
   segment: {
     width: '100%',
-    marginBottom: '1%',
-    marginTop: '1%',
+    borderBottomColor: 'lightgrey',
+    borderBottomWidth: 5,
+    borderTopColor: 'lightgrey',
+    borderTopWidth: 5,
     alignContent: 'center',
-    height: 60,
     backgroundColor: 'white',
     flexDirection: 'row',
   },
@@ -183,9 +212,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: 'white',
   },
   insta: {
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',

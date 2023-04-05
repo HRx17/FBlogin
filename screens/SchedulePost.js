@@ -30,7 +30,9 @@ const SchedulePost = ({navigation}) => {
   return (
     <React.Fragment>
       <View style={styles.container}>
-        <Text style={{color: 'black'}}>Scheduling in progress</Text>
+        <Text style={{color: 'black', marginTop: '30%'}}>
+          Scheduling in progress
+        </Text>
         <TextInput
           style={{
             height: 50,
@@ -89,6 +91,11 @@ const SchedulePost = ({navigation}) => {
             setOpen(false);
           }}
         />
+        <TouchableOpacity>
+          <View style={styles.insta}>
+            <Text style={styles.text}>Schedule</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </React.Fragment>
   );
@@ -102,6 +109,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
+  },
+  text: {
+    color: '#1778f2',
+    fontWeight: '',
+    marginLeft: '40%',
+    marginRight: '40%',
+    fontSize: 18,
+    fontFamily: 'OpenSans',
+    textAlign: 'center',
+  },
+  insta: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    width: '92%',
+    height: 48,
+    borderColor: '#1778f2',
+    borderWidth: 1.4,
+    marginTop: '30%',
+    borderRadius: 27,
   },
 });
 AppRegistry.registerComponent('SchedulePost', SchedulePost);

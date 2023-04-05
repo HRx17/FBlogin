@@ -35,7 +35,7 @@ const SeeAll = ({route}) => {
 
   return (
     <React.Fragment>
-      <View style={{flex: 1, backgroundColor: '#f7f7f7'}}>
+      <View style={{backgroundColor: '#f7f7f7'}}>
         <View style={styles.container}>
           <View
             style={{
@@ -44,7 +44,7 @@ const SeeAll = ({route}) => {
               flexDirection: 'row',
               backgroundColor: '#f7f7f7',
               marginBottom: 0,
-              marginTop: 80,
+              flex: 1,
             }}>
             <Image
               source={require('../assets/images/logo.png')}
@@ -63,66 +63,62 @@ const SeeAll = ({route}) => {
                 weight: 30,
                 marginLeft: 300,
                 marginTop: 3,
-              }}
-              onPress={() => setModalVisible(true)}>
+              }}>
               <Icon name="setting" size={30} color="black" />
             </TouchableOpacity>
           </View>
         </View>
         {postData && (
-          <FlatList
-            data={postData}
-            contentContainerStyle={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: 20,
-              marginTop: 90,
-            }}
-            keyExtractor={(item, index) => item.toString()}
-            renderItem={({item}) => (
-              <View style={[styles.card, styles.elevation]}>
-                <View
-                  style={{
-                    borderColor: 'grey',
-                    borderBottomWidth: 1,
-                    height: 30,
-                    width: '100%',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                  }}></View>
-                <Text
-                  style={[
-                    styles.textb,
-                    {marginRight: 120, alignSelf: 'stretch'},
-                  ]}>
-                  {item.caption}
-                </Text>
-                <Image
-                  style={{
-                    margin: 3,
-                    height: 150,
-                    width: 150,
-                    borderRadius: 8,
-                    alignSelf: 'center',
-                  }}
-                  source={
-                    item.media_url
-                      ? {uri: item.media_url}
-                      : require('../assets/images/Default_Image.png')
-                  }
-                />
-                <Text
-                  style={{
-                    color: 'black',
-                    fontFamily: 'monospace',
-                    fontSize: 7,
-                    marginTop: 5,
-                    marginRight: 60,
-                  }}>
-                  {item.created_time}
-                </Text>
-              </View>
-            )}></FlatList>
+          <View styles={{flex: 2, height: '70%'}}>
+            <FlatList
+              data={postData}
+              contentContainerStyle={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: 20,
+                marginTop: 90,
+              }}
+              keyExtractor={(item, index) => item.toString()}
+              renderItem={({item}) => (
+                <View style={[styles.card, styles.elevation]}>
+                  <Image
+                    style={{
+                      margin: 3,
+                      height: '100%',
+                      position: 'absolute',
+                      width: '100%',
+                      borderRadius: 10,
+                      alignSelf: 'center',
+                    }}
+                    source={
+                      item.media_url
+                        ? {uri: item.media_url}
+                        : require('../assets/images/Default_Image.png')
+                    }
+                  />
+                  <View
+                    style={{
+                      position: 'relative',
+                      top: '38%',
+                      height: 63,
+                      borderBottomStartRadius: 10,
+                      borderBottomEndRadius: 10,
+                      width: '100%',
+                      backgroundColor: 'rgba(220, 220, 220, 0.70)',
+                    }}>
+                    <Text
+                      style={{
+                        marginStart: '10%',
+                        marginTop: 15,
+                        color: 'black',
+                        fontWeight: 'bold',
+                      }}>
+                      {item.caption ? item.caption : 'Post'}
+                    </Text>
+                  </View>
+                </View>
+              )}></FlatList>
+          </View>
         )}
       </View>
     </React.Fragment>

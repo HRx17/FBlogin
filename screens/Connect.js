@@ -29,29 +29,31 @@ var userName = '';
 var emaill = '';
 
 const dimentions = Dimensions.get('screen');
-const ip = '192.168.1.21';
+const ip = 'vivacious-teal-gopher.cyclic.app';
 
 const Connect = ({navigation}) => {
   setIgToken = data => {
     AsyncStorage.setItem('instatoken', data.access_token);
     AsyncStorage.setItem('isLoggedIn', 'true');
-    axios
-      .post(`http://${ip}:3000/api/user/connect`, {
-        type: 'Insta',
-        accessToken: data.access_token,
-        userid: data.user_id.toString(),
-        id: id,
-      })
-      .then(response => {
-        console.log(response.data);
-        navigation.navigate('HomeScreen');
-      })
-      .catch(error => {
-        console.error(error);
-      });
-
+    if (data.access_token) {
+      axios
+        .post(`https://${ip}/api/user/connect`, {
+          type: 'Insta',
+          accessToken: data.access_token,
+          userid: data.user_id.toString(),
+          id: id,
+        })
+        .then(response => {
+          console.log(response.data);
+          console.log(data.access_token);
+          navigation.navigate('HomeScreen');
+        })
+        .catch(error => {
+          console.error(error.message);
+        });
+    }
     AsyncStorage.setItem('instaUserId', data.user_id.toString());
-    navigation.navigate('HomeScreen');
+    //navigation.navigate('HomeScreen');
   };
 
   //linkedin
@@ -62,7 +64,7 @@ const Connect = ({navigation}) => {
   renderContent = () => {
     const clientSecret = 'I07p3K8s2QYeUBIA';
     const clientid = '86uy64s2mcd9e2';
-    const redirecturi = 'http://127.0.0.1/callback';
+    const redirecturi = 'https://127.0.0.1/callback';
     console.log('method');
     return (
       <View>
@@ -112,7 +114,7 @@ const Connect = ({navigation}) => {
     userId = result.id.toString();
     AsyncStorage.setItem('isLoggedIn', 'true');
     axios
-      .post(`http://${ip}:3000/api/user/connect`, {
+      .post(`https://${ip}/api/user/connect`, {
         type: 'Fb',
         accessToken: accesstoken,
         userid: userId,

@@ -25,7 +25,7 @@ import {GraphRequest, GraphRequestManager} from 'react-native-fbsdk-next';
 import SocialType from '../components/SocialType';
 
 const dimentions = Dimensions.get('screen');
-const ip = '192.168.1.21';
+const ip = 'vivacious-teal-gopher.cyclic.app';
 
 const Home = ({route, navigation}) => {
   const [user, setUser] = useState('');
@@ -50,7 +50,7 @@ const Home = ({route, navigation}) => {
         setId(await AsyncStorage.getItem('Id'));
         console.log(id);
         axios
-          .get(`http://${ip}:3000/api/user/${await AsyncStorage.getItem('Id')}`)
+          .get(`https://${ip}/api/user/${await AsyncStorage.getItem('Id')}`)
           .then(response => {
             console.log(response.data.users);
             setUser(response.data.users);
@@ -234,6 +234,8 @@ const Home = ({route, navigation}) => {
 
   function connectSocial() {
     if (socialitem.title == 'facebook') {
+      try {
+      } catch (err) {}
       console.log('connect fb');
     } else if (socialitem.title == 'Instagram') {
       console.log('connect insta');
