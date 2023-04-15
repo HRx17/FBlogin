@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ActivityIndicator} from 'react-native';
+import {StatusBar} from 'react-native';
 
 import {
   AppRegistry,
@@ -21,12 +23,23 @@ const ip = 'vivacious-teal-gopher.cyclic.app';
 
 const Settings = ({navigation}) => {
   const [id, setId] = useState('');
+  const [user, setUser] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const _retrieveData = async () => {
       try {
         setId(await AsyncStorage.getItem('Id'));
+        console.log(id);
+        axios
+          .get(`https://${ip}/api/user/${await AsyncStorage.getItem('Id')}`)
+          .then(response => {
+            console.log(response.data.users);
+            setUser(response.data.users);
+          })
+          .catch(error => {
+            console.log(error);
+          });
       } catch (error) {
         console.log(error, 'error');
         // Error retrieving data
@@ -69,128 +82,271 @@ const Settings = ({navigation}) => {
 
   return (
     <React.Fragment>
-      <View style={styles.container}>
-        <TouchableOpacity style={{marginTop: '5%', marginLeft: '80%'}}>
-          <Icon name="mode-edit" size={22} color={'black'} />
-        </TouchableOpacity>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-            setModalVisible(!modalVisible);
-          }}>
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={{color: 'black', fontWeight: 'bold', fontSize: 16}}>
-                Are you sure you wish to continue?
-              </Text>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => {
-                  logout();
-                  setModalVisible(!modalVisible);
-                }}>
-                <Text style={styles.textStyle}>Log Out</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  width: 100,
-                  marginTop: 20,
-                  borderRadius: 20,
-                  padding: 10,
-                  elevation: 1,
-                }}
-                onPress={() => setModalVisible(!modalVisible)}>
-                <Text style={styles.textStyle}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-        <Image
-          style={{
-            marginTop: '5%',
-            marginBottom: '5%',
-            borderRadius: 550,
-            height: 150,
-            borderColor: '#1778f2',
-            borderWidth: 3,
-            width: 150,
-          }}
-          source={require('../assets/images/Default_Image.png')}
-        />
-        <Text></Text>
-        <View style={[styles.segment]}>
-          <Icon name="mail" color={'black'} size={25} style={{margin: 20}} />
-          <Text
-            style={{
-              color: 'black',
-              fontSize: 16,
-              margin: 20,
-              fontWeight: 'bold',
-            }}>
-            Email here
-          </Text>
+      {!user && (
+        <View style={styles.container}>
+          <ActivityIndicator size="large" />
         </View>
-        <View style={styles.segment}>
-          <Icon name="" color={'black'} size={25} style={{margin: 20}} />
-          <Text
+      )}
+      {user && (
+        <View style={styles.container}>
+          <StatusBar translucent backgroundColor="transparent" />
+          <View
             style={{
-              color: 'black',
-              fontSize: 16,
-              marginTop: 50,
-              marginBottom: 50,
+              position: 'absolute',
+              height: 300,
+              top: 0,
+              borderRadius: 20,
+              width: '100%',
             }}>
-            {' '}
-            Information here
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={[
-            styles.segment,
-            {alignItem: 'center', justifyContent: 'center'},
-          ]}>
-          <Text
-            style={{
-              color: 'black',
-              fontSize: 16,
-              marginTop: '5%',
-              marginLeft: '25%',
-              fontWeight: 'bold',
-            }}>
-            Notification Settings
-          </Text>
-          <TouchableOpacity style={{margin: 20, marginLeft: '25%'}}>
-            <Icon name="arrow-forward-ios" color={'black'} size={20} />
-          </TouchableOpacity>
-        </TouchableOpacity>
-        <View style={{flex: 2, marginTop: 40}}>
-          <TouchableOpacity style={styles.insta} onPress={() => showLogout()}>
-            <Icon
-              name="logout"
-              color={'white'}
-              size={20}
-              style={{marginRight: '25%'}}
+            <Image
+              source={require('../assets/images/back1.jpeg')}
+              style={{height: 300, borderRadius: 25, width: '100%'}}
             />
-            <Text
-              style={{fontWeight: 'bold', color: 'white', marginRight: '30%'}}>
-              Log Out
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.delete} onPress={() => showLogout()}>
+          </View>
+          <View style={{flexDirection: 'row'}}>
             <Text
               style={{
+                position: 'relative',
                 color: 'white',
+                fontSize: 20,
                 fontWeight: 'bold',
+                marginTop: '6%',
+                marginLeft: '5%',
+                top: 40,
+              }}>
+              Profile
+            </Text>
+            <TouchableOpacity style={{marginTop: '15%', marginLeft: '70%'}}>
+              <Icon name="mode-edit" size={22} color={'white'} />
+            </TouchableOpacity>
+          </View>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              Alert.alert('Modal has been closed.');
+              setModalVisible(!modalVisible);
+            }}>
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', fontSize: 16}}>
+                  Are you sure you wish to continue?
+                </Text>
+                <TouchableOpacity
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => {
+                    logout();
+                    setModalVisible(!modalVisible);
+                  }}>
+                  <Text style={styles.textStyle}>Log Out</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    width: 100,
+                    marginTop: 20,
+                    borderRadius: 20,
+                    padding: 10,
+                    elevation: 1,
+                  }}
+                  onPress={() => setModalVisible(!modalVisible)}>
+                  <Text style={styles.textStyle}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+          <View style={{justifyContent: 'center', marginTop: '1%'}}>
+            <Image
+              style={{
+                marginTop: '5%',
+                marginBottom: '1%',
+                borderRadius: 550,
+                height: 100,
+                borderColor: 'white',
+                borderWidth: 2,
+                width: 100,
+                alignSelf: 'center',
+              }}
+              source={require('../assets/images/tempimg.jpeg')}
+            />
+            <View
+              style={{
+                marginTop: '2%',
+                marginBottom: '5%',
+                justifyContent: 'center',
                 alignItems: 'center',
               }}>
-              Delete Account
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  color: 'white',
+                }}>
+                {user.username}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 18,
+
+                  color: 'white',
+                }}>
+                {user.email}
+              </Text>
+            </View>
+          </View>
+          <View style={{flexDirection: 'row', marginTop: '10%'}}>
+            <TouchableOpacity style={styles.likes}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}>
+                1.2k
+              </Text>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: 'grey',
+                  fontWeight: 'bold',
+                }}>
+                Followers
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.likes}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}>
+                2.4k
+              </Text>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: 'grey',
+                  fontWeight: 'bold',
+                }}>
+                Likes
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.likes}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}>
+                450
+              </Text>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: 'grey',
+                  fontWeight: 'bold',
+                }}>
+                Posts
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={[
+              styles.segment,
+              {alignItem: 'center', justifyContent: 'center'},
+            ]}>
+            <Icon
+              name="notifications-active"
+              color={'black'}
+              size={20}
+              style={{marginRight: '1%', marginTop: '5%', marginLeft: '5%'}}
+            />
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 16,
+                marginTop: '5%',
+                marginLeft: '1%',
+                fontWeight: 'bold',
+              }}>
+              Notification Settings
             </Text>
+            <TouchableOpacity style={{margin: 20, marginLeft: '47%'}}>
+              <Icon name="arrow-forward-ios" color={'black'} size={20} />
+            </TouchableOpacity>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              alignItem: 'center',
+              justifyContent: 'center',
+              width: '98%',
+              borderBottomColor: 'lightgrey',
+              borderBottomWidth: 2.5,
+              borderTopColor: 'lightgrey',
+              backgroundColor: 'white',
+              flexDirection: 'row',
+            }}>
+            <Icon
+              name="access-time"
+              color={'black'}
+              size={20}
+              style={{marginRight: '1%', marginTop: '5%', marginLeft: '5%'}}
+            />
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 16,
+                marginTop: '5%',
+                marginLeft: '1%',
+                fontWeight: 'bold',
+              }}>
+              Configure Time
+            </Text>
+            <TouchableOpacity style={{margin: 20, marginLeft: '56%'}}>
+              <Icon name="arrow-forward-ios" color={'black'} size={20} />
+            </TouchableOpacity>
+          </TouchableOpacity>
+          <View style={{flex: 2, marginTop: '20%'}}>
+            <TouchableOpacity style={styles.insta} onPress={() => showLogout()}>
+              <Icon
+                name="logout"
+                color={'white'}
+                size={20}
+                style={{marginRight: '25%'}}
+              />
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  color: 'white',
+                  marginRight: '30%',
+                }}>
+                Log Out
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.delete}
+              onPress={() => showLogout()}>
+              <Icon
+                name="delete-outline"
+                color={'white'}
+                size={20}
+                style={{marginRight: '15%'}}
+              />
+              <Text
+                style={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  marginRight: '20%',
+                }}>
+                Delete Account
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
     </React.Fragment>
   );
 };
@@ -199,11 +355,13 @@ export default Settings;
 
 const styles = StyleSheet.create({
   segment: {
-    width: '100%',
+    width: '98%',
+    marginTop: '3%',
+
     borderBottomColor: 'lightgrey',
-    borderBottomWidth: 5,
+    borderBottomWidth: 2.5,
     borderTopColor: 'lightgrey',
-    borderTopWidth: 5,
+    borderTopWidth: 2.5,
     alignContent: 'center',
     backgroundColor: 'white',
     flexDirection: 'row',
@@ -220,7 +378,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     width: 280,
-    height: 48,
+    height: 43,
     backgroundColor: '#1778f2',
     borderRadius: 25,
     borderColor: '#1778f2',
@@ -233,8 +391,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
+    flexDirection: 'row',
     width: 280,
-    height: 48,
+    height: 43,
     backgroundColor: '#e33030',
     borderRadius: 25,
     borderColor: '#e33030',
@@ -305,6 +464,21 @@ const styles = StyleSheet.create({
     marginTop: 40,
     textAlign: 'left',
     fontFamily: 'monospace',
+  },
+  likes: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 15,
+    width: 95,
+    height: 65,
+    borderRadius: 12,
+    borderColor: 'grey',
+    borderWidth: 1,
+    shadowOpacity: 1,
+    shadowColor: 'black',
+    marginTop: '3%',
+    shadowColor: 'grey',
+    marginBottom: 27,
   },
 });
 AppRegistry.registerComponent('Settings', Settings);

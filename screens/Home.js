@@ -4,7 +4,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Carousel from 'react-native-snap-carousel';
 import {RootSiblingParent} from 'react-native-root-siblings';
 import Toast from 'react-native-root-toast';
-
+import {
+  AccessToken,
+  GraphRequest,
+  GraphRequestManager,
+  LoginManager,
+} from 'react-native-fbsdk-next';
 import {
   AppRegistry,
   StyleSheet,
@@ -21,10 +26,11 @@ import {
 import Icon from 'react-native-vector-icons/AntDesign';
 import {ScrollView} from 'react-native';
 import {FlatList} from 'react-native';
-import {GraphRequest, GraphRequestManager} from 'react-native-fbsdk-next';
 import SocialType from '../components/SocialType';
 
 const dimentions = Dimensions.get('screen');
+var userId = '';
+var accesstoken = '';
 const ip = 'vivacious-teal-gopher.cyclic.app';
 
 const Home = ({route, navigation}) => {
@@ -232,11 +238,83 @@ const Home = ({route, navigation}) => {
     }
   };
 
+  const _getFeed = () => {
+    const infoRequest = new GraphRequest(
+      '/me?fields=id,name,email',
+      null,
+      _responseInfoCallback,
+    );
+    new GraphRequestManager().addRequest(infoRequest).start();
+  };
+  const _responseInfoCallback = (error, result) => {
+    if (error) {
+      console.log('Error fetching data: ', error.toString());
+      return;
+    }
+    userId = result.id.toString();
+    console.log(userId);
+    axios
+      .post(`https://${ip}/api/user/connect`, {
+        type: 'Fb',
+        accessToken: accesstoken,
+        userid: userId,
+        id: id,
+      })
+      .then(response => {
+        console.log(response);
+        axios
+          .get(`https://${ip}/api/user/${id}`)
+          .then(response => {
+            console.log(response.data.users);
+            setUser(response.data.users);
+            setpostData(null);
+            setinstaPost(null);
+            setPosts(null);
+            loadPosts();
+          })
+          .catch(error => {
+            console.log(error);
+          });
+        //navigation.navigate('HomeScreen');
+      })
+      .catch(error => {
+        console.error(error, 'here');
+      });
+
+    // navigation.navigate('HomeScreen');
+  };
+
   function connectSocial() {
     if (socialitem.title == 'facebook') {
       try {
-      } catch (err) {}
-      console.log('connect fb');
+        LoginManager.logInWithPermissions([
+          'public_profile',
+          'user_photos',
+          'user_posts',
+          'user_events',
+          'user_likes',
+        ]).then(
+          async result => {
+            if (result.isCancelled) {
+              console.log('Login cancelled');
+            } else {
+              const data = await AccessToken.getCurrentAccessToken();
+              _getFeed();
+              AsyncStorage.setItem('accessToken', data.accessToken.toString());
+              AsyncStorage.setItem('isLoggedIn', 'true');
+              accesstoken = data.accessToken.toString();
+              setFb(accesstoken);
+              AsyncStorage.setItem('fbaccesstoken', accesstoken);
+              console.log(accesstoken);
+            }
+          },
+          async error => {
+            console.log('Login fail with error: ' + error);
+          },
+        );
+      } catch (err) {
+        console.log(err);
+      }
     } else if (socialitem.title == 'Instagram') {
       console.log('connect insta');
     } else if (socialitem.title == 'linkedin') {
@@ -258,6 +336,16 @@ const Home = ({route, navigation}) => {
     } else if (item.title == 'twitter') {
       console.log('connect twitter');
       setModal(!isVisible);
+    } else if (item.title == 'facebook' && fb != null) {
+      setpostData(null);
+      setinstaPost(null);
+      setPosts(null);
+      loadPosts();
+    } else if (item.title == 'Instagram' && insta != null) {
+      setpostData(null);
+      setinstaPost(null);
+      setPosts(null);
+      loadInstaPosts();
     }
     setSocials(items);
     setItem(item);
@@ -267,12 +355,7 @@ const Home = ({route, navigation}) => {
   return (
     <RootSiblingParent>
       <React.Fragment>
-        <StatusBar
-          barStyle="dark-content"
-          hidden={false}
-          backgroundColor="white"
-          translucent={false}
-        />
+        <StatusBar translucent backgroundColor="transparent" />
         {isVisible && (
           <Modal
             animationType="slide"
@@ -339,7 +422,7 @@ const Home = ({route, navigation}) => {
                 flexDirection: 'row',
                 backgroundColor: 'white',
                 marginBottom: 0,
-                marginTop: 20,
+                marginTop: '12%',
               }}>
               <Image
                 source={require('../assets/images/logo.png')}
@@ -353,7 +436,7 @@ const Home = ({route, navigation}) => {
               <View
                 style={{
                   height: 40,
-                  marginTop: 3,
+                  marginTop: '1%',
                   marginRight: '50%',
                   backgroundColor: 'white',
                 }}>
@@ -376,7 +459,7 @@ const Home = ({route, navigation}) => {
                   {posts && (
                     <View
                       style={{
-                        marginTop: '12%',
+                        marginTop: '7%',
                         justifyContent: 'center',
                       }}>
                       <Carousel
@@ -396,13 +479,17 @@ const Home = ({route, navigation}) => {
                 </View>
                 <SocialType handlePress={socialHandling} />
                 <View
-                  style={{flex: 2, marginBottom: 20, backgroundColor: 'white'}}>
+                  style={{
+                    flex: 2,
+                    marginBottom: '2%',
+                    backgroundColor: 'white',
+                  }}>
                   <ScrollView alwaysBounceVertical={false}>
                     <View
                       style={{
                         flexDirection: 'row',
                         alignItems: 'center',
-                        marginTop: '5%',
+                        marginTop: '7%',
                       }}>
                       <Text
                         style={{

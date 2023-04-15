@@ -44,7 +44,7 @@ class SocialType extends React.PureComponent {
       <View
         style={{
           flex: 2,
-          marginTop: '15%',
+          marginTop: '13%',
           backgroundColor: 'white',
           justifyContent: 'center',
           alignItems: 'center',
