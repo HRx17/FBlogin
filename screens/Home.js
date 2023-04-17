@@ -37,6 +37,7 @@ const Home = ({route, navigation}) => {
   const [user, setUser] = useState('');
   const [id, setId] = useState('');
   const [fb, setFb] = useState('');
+  const [current, setCurrent] = useState('');
   const [insta, setInsta] = useState('');
   const [socialitem, setItem] = useState('');
 
@@ -62,8 +63,10 @@ const Home = ({route, navigation}) => {
             setUser(response.data.users);
             if (insta) {
               loadInstaPosts();
+              setCurrent('insta');
             } else if (fb) {
               loadPosts();
+              setCurrent('Fb');
             }
           })
           .catch(error => {
@@ -187,6 +190,7 @@ const Home = ({route, navigation}) => {
           setpostData(null);
           setinstaPost(response.data.data);
           setPosts(response.data.data);
+          setCurrent('insta');
           return console.log(response.data);
         })
         .catch(error => {
@@ -206,6 +210,7 @@ const Home = ({route, navigation}) => {
     if (fb) {
       tmp = 1;
       console.log('entered');
+      setCurrent('Fb');
       //2102944419904876
       /* make the API call */
       const infoRequest = new GraphRequest(
@@ -425,7 +430,7 @@ const Home = ({route, navigation}) => {
                 marginTop: '12%',
               }}>
               <Image
-                source={require('../assets/images/logo.png')}
+                source={require('../assets/images/tempimg.jpeg')}
                 style={{
                   height: 40,
                   width: 40,
@@ -444,7 +449,7 @@ const Home = ({route, navigation}) => {
                   <Text
                     style={{
                       color: 'black',
-                      fontSize: 24,
+                      fontSize: 26,
                       fontFamily: 'Open Sans',
                     }}>
                     {' '}
@@ -509,6 +514,7 @@ const Home = ({route, navigation}) => {
                         onPress={() => {
                           navigation.navigate('SeeAll', {
                             item: posts,
+                            type: current,
                           });
                         }}>
                         <Text

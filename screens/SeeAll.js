@@ -5,11 +5,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   AppRegistry,
   StyleSheet,
+  SafeAreaView,
   View,
   Alert,
   Pressable,
   Modal,
   Text,
+  StatusBar,
   Image,
   TouchableOpacity,
   Dimensions,
@@ -27,99 +29,419 @@ const username = 'Haet';
 const dimentions = Dimensions.get('screen');
 
 const SeeAll = ({route}) => {
+  const current = route.params.type;
   const postData = route.params.item;
+
   logOut = () => {
     navigation.navigate('Login');
     console.log('logout');
   };
 
+  const renderInsta1 = ({item, index}) => {
+    return (
+      <TouchableOpacity>
+        <View>
+          {index % 2 === 0 && (
+            <View style={[styles.card, styles.elevation]}>
+              <Image
+                style={{
+                  margin: 5,
+                  height: '100%',
+                  position: 'absolute',
+                  width: '100%',
+                  borderRadius: 10,
+                  alignSelf: 'center',
+                }}
+                source={
+                  item.media_url
+                    ? {uri: item.media_url}
+                    : require('../assets/images/Default_Image.png')
+                }
+              />
+              <View
+                style={{
+                  position: 'relative',
+                  top: '38%',
+                  height: 63,
+                  borderBottomStartRadius: 10,
+                  borderBottomEndRadius: 10,
+                  width: '100%',
+                  backgroundColor: 'rgba(220, 220, 220, 0.70)',
+                }}>
+                <Text
+                  style={{
+                    marginStart: '10%',
+                    marginTop: 15,
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}>
+                  {item.caption ? item.caption : 'Post'}
+                </Text>
+              </View>
+            </View>
+          )}
+          {index % 2 !== 0 && (
+            <View style={[styles.card2, styles.elevation]}>
+              <Image
+                style={{
+                  margin: 5,
+                  height: '100%',
+                  position: 'absolute',
+                  width: '100%',
+                  borderRadius: 10,
+                  alignSelf: 'center',
+                }}
+                source={
+                  item.media_url
+                    ? {uri: item.media_url}
+                    : require('../assets/images/Default_Image.png')
+                }
+              />
+              <View
+                style={{
+                  position: 'relative',
+                  top: '37%',
+                  height: 43,
+                  borderBottomStartRadius: 10,
+                  borderBottomEndRadius: 10,
+                  width: '100%',
+                  backgroundColor: 'rgba(220, 220, 220, 0.70)',
+                }}>
+                <Text
+                  style={{
+                    marginStart: '10%',
+                    marginTop: 15,
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}>
+                  {item.caption ? item.caption : 'Post'}
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
+  const renderInsta2 = ({item, index}) => {
+    return (
+      <TouchableOpacity>
+        <View>
+          {index % 2 !== 0 && (
+            <View style={[styles.card, styles.elevation]}>
+              <Image
+                style={{
+                  margin: 5,
+                  height: '100%',
+                  position: 'absolute',
+                  width: '100%',
+                  borderRadius: 10,
+                  alignSelf: 'center',
+                }}
+                source={
+                  item.media_url
+                    ? {uri: item.media_url}
+                    : require('../assets/images/Default_Image.png')
+                }
+              />
+              <View
+                style={{
+                  position: 'relative',
+                  top: '38%',
+                  height: 63,
+                  borderBottomStartRadius: 10,
+                  borderBottomEndRadius: 10,
+                  width: '100%',
+                  backgroundColor: 'rgba(220, 220, 220, 0.70)',
+                }}>
+                <Text
+                  style={{
+                    marginStart: '10%',
+                    marginTop: 15,
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}>
+                  {item.caption ? item.caption : 'Post'}
+                </Text>
+              </View>
+            </View>
+          )}
+          {index % 2 === 0 && (
+            <View style={[styles.card2, styles.elevation]}>
+              <Image
+                style={{
+                  margin: 5,
+                  height: '100%',
+                  position: 'absolute',
+                  width: '100%',
+                  borderRadius: 10,
+                  alignSelf: 'center',
+                }}
+                source={
+                  item.media_url
+                    ? {uri: item.media_url}
+                    : require('../assets/images/Default_Image.png')
+                }
+              />
+              <View
+                style={{
+                  position: 'relative',
+                  top: '37%',
+                  height: 43,
+                  borderBottomStartRadius: 10,
+                  borderBottomEndRadius: 10,
+                  width: '100%',
+                  backgroundColor: 'rgba(220, 220, 220, 0.70)',
+                }}>
+                <Text
+                  style={{
+                    marginStart: '10%',
+                    marginTop: 15,
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}>
+                  {item.caption ? item.caption : 'Post'}
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderFb1 = ({item, index}) => {
+    return (
+      <TouchableOpacity>
+        <View>
+          {index % 2 === 0 && (
+            <View style={[styles.card, styles.elevation]}>
+              <Image
+                style={{
+                  margin: 5,
+                  height: '100%',
+                  position: 'absolute',
+                  width: '100%',
+                  borderRadius: 10,
+                  alignSelf: 'center',
+                }}
+                source={
+                  item.full_picture
+                    ? {uri: item.full_picture}
+                    : require('../assets/images/Default_Image.png')
+                }
+              />
+              <View
+                style={{
+                  position: 'relative',
+                  top: '38%',
+                  height: 63,
+                  borderBottomStartRadius: 10,
+                  borderBottomEndRadius: 10,
+                  width: '100%',
+                  backgroundColor: 'rgba(220, 220, 220, 0.70)',
+                }}>
+                <Text
+                  style={{
+                    marginStart: '10%',
+                    marginTop: 15,
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}>
+                  {item.message ? item.message : 'Post'}
+                </Text>
+              </View>
+            </View>
+          )}
+          {index % 2 !== 0 && (
+            <View style={[styles.card2, styles.elevation]}>
+              <Image
+                style={{
+                  margin: 5,
+                  height: '100%',
+                  position: 'absolute',
+                  width: '100%',
+                  borderRadius: 10,
+                  alignSelf: 'center',
+                }}
+                source={
+                  item.full_picture
+                    ? {uri: item.full_picture}
+                    : require('../assets/images/Default_Image.png')
+                }
+              />
+              <View
+                style={{
+                  position: 'relative',
+                  top: '37%',
+                  height: 43,
+                  borderBottomStartRadius: 10,
+                  borderBottomEndRadius: 10,
+                  width: '100%',
+                  backgroundColor: 'rgba(220, 220, 220, 0.70)',
+                }}>
+                <Text
+                  style={{
+                    marginStart: '10%',
+                    marginTop: 15,
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}>
+                  {item.message ? item.message : 'Post'}
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
+  const renderFb2 = ({item, index}) => {
+    return (
+      <TouchableOpacity>
+        <View>
+          {index % 2 !== 0 && (
+            <View style={[styles.card, styles.elevation]}>
+              <Image
+                style={{
+                  margin: 5,
+                  height: '100%',
+                  position: 'absolute',
+                  width: '100%',
+                  borderRadius: 10,
+                  alignSelf: 'center',
+                }}
+                source={
+                  item.full_picture
+                    ? {uri: item.full_picture}
+                    : require('../assets/images/Default_Image.png')
+                }
+              />
+              <View
+                style={{
+                  position: 'relative',
+                  top: '38%',
+                  height: 63,
+                  borderBottomStartRadius: 10,
+                  borderBottomEndRadius: 10,
+                  width: '100%',
+                  backgroundColor: 'rgba(220, 220, 220, 0.70)',
+                }}>
+                <Text
+                  style={{
+                    marginStart: '10%',
+                    marginTop: 15,
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}>
+                  {item.message ? item.message : 'Post'}
+                </Text>
+              </View>
+            </View>
+          )}
+          {index % 2 === 0 && (
+            <View style={[styles.card2, styles.elevation]}>
+              <Image
+                style={{
+                  margin: 5,
+                  height: '100%',
+                  position: 'absolute',
+                  width: '100%',
+                  borderRadius: 10,
+                  alignSelf: 'center',
+                }}
+                source={
+                  item.full_picture
+                    ? {uri: item.full_picture}
+                    : require('../assets/images/Default_Image.png')
+                }
+              />
+              <View
+                style={{
+                  position: 'relative',
+                  top: '37%',
+                  height: 43,
+                  borderBottomStartRadius: 10,
+                  borderBottomEndRadius: 10,
+                  width: '100%',
+                  backgroundColor: 'rgba(220, 220, 220, 0.70)',
+                }}>
+                <Text
+                  style={{
+                    marginStart: '10%',
+                    marginTop: 15,
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}>
+                  {item.message ? item.message : 'Post'}
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <React.Fragment>
-      <View style={{backgroundColor: '#f7f7f7'}}>
-        <View style={styles.container}>
-          <View
-            style={{
-              height: 50,
-              weight: 100,
-              flexDirection: 'row',
-              backgroundColor: '#f7f7f7',
-              marginBottom: 0,
-              flex: 1,
-            }}>
-            <Image
-              source={require('../assets/images/logo.png')}
-              style={{
-                height: 40,
-                width: 40,
-                borderRadius: 200,
-                marginLeft: 10,
-                marginTop: 0,
-              }}
-            />
-            <TouchableOpacity
-              style={{
-                marginLeft: 10,
-                height: 32,
-                weight: 30,
-                marginLeft: 300,
-                marginTop: 3,
-              }}>
-              <Icon name="setting" size={30} color="black" />
-            </TouchableOpacity>
+      <StatusBar translucent backgroundColor="transparent" />
+      <View style={styles.container}>
+        <Text
+          style={{
+            color: '#1778f2',
+            fontWeight: 'bold',
+            fontSize: 40,
+            marginTop: '5%',
+          }}>
+          Posts
+        </Text>
+        <ScrollView>
+          <View style={styles.container2}>
+            {postData && (
+              <SafeAreaView
+                styles={{
+                  flex: 1,
+                  width: '100%',
+                  flexDirection: 'row',
+                  alignItems: 'space-between',
+                }}>
+                {current === 'insta' && (
+                  <FlatList
+                    scrollEnabled={false}
+                    style={{width: '100%'}}
+                    data={postData}
+                    keyExtractor={(item, index) => item.toString()}
+                    renderItem={renderInsta1}></FlatList>
+                )}
+                {current === 'Fb' && (
+                  <FlatList
+                    scrollEnabled={false}
+                    style={{width: '100%'}}
+                    data={postData}
+                    keyExtractor={(item, index) => item.toString()}
+                    renderItem={renderFb1}></FlatList>
+                )}
+              </SafeAreaView>
+            )}
+            {current === 'insta' && (
+              <FlatList
+                style={{width: '100%'}}
+                data={postData}
+                scrollEnabled={false}
+                keyExtractor={(item, index) => item.toString()}
+                renderItem={renderInsta2}></FlatList>
+            )}
+            {current === 'Fb' && (
+              <FlatList
+                style={{width: '100%'}}
+                data={postData}
+                scrollEnabled={false}
+                keyExtractor={(item, index) => item.toString()}
+                renderItem={renderFb2}></FlatList>
+            )}
           </View>
-        </View>
-        {postData && (
-          <View styles={{flex: 2, height: '70%'}}>
-            <FlatList
-              data={postData}
-              contentContainerStyle={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginBottom: 20,
-                marginTop: 90,
-              }}
-              keyExtractor={(item, index) => item.toString()}
-              renderItem={({item}) => (
-                <View style={[styles.card, styles.elevation]}>
-                  <Image
-                    style={{
-                      margin: 3,
-                      height: '100%',
-                      position: 'absolute',
-                      width: '100%',
-                      borderRadius: 10,
-                      alignSelf: 'center',
-                    }}
-                    source={
-                      item.media_url
-                        ? {uri: item.media_url}
-                        : require('../assets/images/Default_Image.png')
-                    }
-                  />
-                  <View
-                    style={{
-                      position: 'relative',
-                      top: '38%',
-                      height: 63,
-                      borderBottomStartRadius: 10,
-                      borderBottomEndRadius: 10,
-                      width: '100%',
-                      backgroundColor: 'rgba(220, 220, 220, 0.70)',
-                    }}>
-                    <Text
-                      style={{
-                        marginStart: '10%',
-                        marginTop: 15,
-                        color: 'black',
-                        fontWeight: 'bold',
-                      }}>
-                      {item.caption ? item.caption : 'Post'}
-                    </Text>
-                  </View>
-                </View>
-              )}></FlatList>
-          </View>
-        )}
+        </ScrollView>
       </View>
     </React.Fragment>
   );
@@ -140,9 +462,22 @@ const styles = StyleSheet.create({
     shadowColor: 'grey',
   },
   card: {
-    height: 350,
-    width: 350,
-    margin: 5,
+    height: 250,
+    width: 170,
+    margin: 7,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f7f7f7',
+    borderRadius: 6,
+    shadowOpacity: 1,
+    shadowColor: 'black',
+  },
+  card2: {
+    height: 150,
+    width: 170,
+    margin: 7,
+    marginBottom: 10,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f7f7f7',
@@ -151,9 +486,18 @@ const styles = StyleSheet.create({
     shadowColor: 'black',
   },
   container: {
-    flex: 1,
+    paddingTop: '8%',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingStart: '3%',
+    backgroundColor: '#f7f7f7',
+  },
+  container2: {
+    flexDirection: 'row',
+    paddingTop: '5%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingStart: '3%',
     backgroundColor: '#f7f7f7',
   },
   centeredView: {
